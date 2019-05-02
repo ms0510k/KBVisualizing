@@ -7,7 +7,7 @@
     <style type="text/css">
         .node {}
 
-        .link { stroke: #999; stroke-opacity: .6; stroke-width: 1px; }
+        {#.link { stroke: #999; stroke-opacity: .6; stroke-width: 2px; }#}
         input[type=text], select {
             width: 100px;
             display: inline-block;
@@ -153,6 +153,7 @@
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
+    var targetP = null;
     function dataSel() {
         g.selectAll("*").remove();    // svg 초기화
         if(flag==1){
@@ -164,7 +165,7 @@
                 linkList = JSON.parse(JSON.stringify(linkList_org));
                 nodeList = JSON.parse(JSON.stringify(nodeList_org));
                 console.log(data);
-                draw(linkList, nodeList);
+                draw(linkList, nodeList, 0);
             }).fail(function(data){
                 console.log("Fail to load\nError code: "+ data);
             });
@@ -172,7 +173,7 @@
             console.log("==============");
             console.log(linkList);
             console.log(nodeList);
-            draw(linkList, nodeList);
+            draw(linkList, nodeList, 0);
         }
     }
 
@@ -187,11 +188,11 @@
     svg.append('defs').append('marker')
         .attrs({'id':'arrowhead',
             'viewBox':'-0 -5 10 10',
-            'refX':24,  // 화살표 위치
+            'refX':21,  // 화살표 위치
             'refY':0,
             'orient':'auto',
             'markerWidth':5,
-            'markerHeight':5,
+            'markerHeight':3,
             'xoverflow':'visible'})
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -202,7 +203,7 @@
     svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.1));
 
 
-    function draw(links, nodes){    // svg에 link와 node 그리기
+    function draw(links, nodes, c){    // svg에 link와 node 그리기
         var simulation = d3.forceSimulation(nodes)
             .force("link", d3.forceLink(links).id(function (d) {return d.id;}))
             .force("charge", d3.forceManyBody().strength(-500))
@@ -210,11 +211,11 @@
             .force("collide", d3.forceCollide().radius(12))
             .force("x", d3.forceX())
             .force("y", d3.forceY());
-
-
-
         update();
+
         function update() {
+
+            console.log("teaaaa:");
             link = g.selectAll(".link")
                 .data(links)
                 .enter()
@@ -237,6 +238,7 @@
                 })
                 .style("pointer-events", "none");
 
+
             edgelabels = g.selectAll(".edgelabel")
                 .data(links)
                 .enter()
@@ -245,7 +247,8 @@
                 .attrs({
                     'class': 'edgelabel',
                     'id': function (d, i) {return 'edgelabel' + i},
-                    'font-size': 8,
+                    'font-size': 5,
+                    'dy' : 6,
                     'fill': '#aaa'
                 });
 
@@ -290,38 +293,53 @@
             simulation.alpha(1).restart();
 
         }
-
+        var c = 0;
         function ticked() {
             link
                 .attr("x1", function (d) {return d.source.x;})
                 .attr("y1", function (d) {return d.source.y;})
                 .attr("x2", function (d) {return d.target.x;})
                 .attr("y2", function (d) {return d.target.y;})
-                .on("click", function(d){
-                    var source = d.source['name'].split(',').toString();
-                    var link = d.type;
-                    var target = d.target['name'].split(',').toString();
-                    console.log(source+"/"+link+"/"+target);
+                //.attr("stroke", "#999")
+                .attr("stroke", function (d) {
+                    if(d.type == targetP){
+                        return "#cc120e"
+                    }else{
+                        return "#999"
+                    }
+                })
+                .attr("stroke-width", 2)
+                .on("click", function(d, i){
 
-                    $.ajax({
-                        url: "/ontologyDemo/delTriple/",
-                        dataType: 'html',
-                        type: 'POST',
-                        data: {subject: source, property: link, object: target},
-                        success: function (result) {
-                            if(result!="False"){
-                                console.log("success");
-                                $('#stat').append("=== Delete Triple ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                                $('#stat').append("subject : "+source).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                                $('#stat').append("property : "+link).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                                $('#stat').append("object : "+target).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
-                                flag = 1;
-                                dataSel();
-                            }else {
-                                console.log("no search list");
+                    c = c+1;
+                    console.log(c);
+                    if(c == 1){
+                        d3.select(this).style("stroke", "#d05642").style("stroke-dasharray",1.5);
+                    }else if(c == 2){
+                        var source = d.source['name'].split(',').toString();
+                        var link = d.type;
+                        var target = d.target['name'].split(',').toString();
+                        $.ajax({
+                            url: "/ontologyDemo/delTriple/",
+                            dataType: 'html',
+                            type: 'POST',
+                            data: {subject: source, property: link, object: target},
+                            success: function (result) {
+                                if(result!="False"){
+                                    console.log("success");
+                                    $('#stat').append("=== Delete Triple ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                                    $('#stat').append("subject : "+source).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                                    $('#stat').append("property : "+link).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                                    $('#stat').append("object : "+target).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
+                                    flag = 1;
+                                    dataSel();
+                                }else {
+                                    console.log("no search list");
+                                }
                             }
-                        }
-                    });
+                        });
+                        c = 0;
+                    }
                 });
 
             node
@@ -472,7 +490,7 @@
         });
     }
     function targetProperty() {
-        //alert($('#targetProperty').val())
+        targetP = $('#targetProperty').val();
         $.ajax({
             url: "/ontologyDemo/targetProperty/",
             dataType: 'html',
