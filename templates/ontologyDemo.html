@@ -90,16 +90,19 @@
                     <div class="w3-dropdown-hover">
                         <input type="button" value="depth">
                         <div class="w3-dropdown-content w3-bar-block w3-border">
+                            <a onclick="depth(0)" class="w3-bar-item w3-button">0</a>
                             <a onclick="depth(1)" class="w3-bar-item w3-button">1</a>
                             <a onclick="depth(2)" class="w3-bar-item w3-button">2</a>
                             <a onclick="depth(3)" class="w3-bar-item w3-button">3</a>
+                            <a onclick="depth(4)" class="w3-bar-item w3-button">4</a>
+                            <a onclick="depth(5)" class="w3-bar-item w3-button">5</a>
                         </div>
                     </div>
                     <input type="button" value="RUN" onclick="runEngine()">
                 </div>
             </div>
             <div style="border:1px solid #0480be; float: right; width: 15%; height: 30%; overflow:auto; padding: 10px; margin-top: 0.5%; margin-right: 0.5%" id="stat"></div>
-            <div class="panel-body" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 84.5%;">
+            <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 84.5%;">
                 <svg width="1860" height="830" style="{% comment %}border:1px solid red;{% endcomment %}"></svg>
             </div>
         </div>
@@ -240,7 +243,7 @@
 
 
             edgelabels = g.selectAll(".edgelabel")
-                .data(links)
+                //.data(links)
                 .enter()
                 .append('text')
                 .style("pointer-events", "none")
@@ -294,6 +297,36 @@
 
         }
         var c = 0;
+        var tooltip = d3.select("#svgArea")
+            .append("div")
+            .style("opacity", 0)
+            .attr("class", "tooltip")
+            .style("background-color", "black")
+            .style("border-radius", "5px")
+            .style("padding", "10px")
+            .style("color", "white");
+        var showTooltip = function(d) {
+                tooltip
+                  .transition()
+                  .duration(200)
+                tooltip
+                  .style("opacity", 1)
+                  .html(d.type)
+                  .style("left", (d3.mouse(this)[0]+30) + "px")
+                  .style("top", (d3.mouse(this)[1]+30) + "px")
+                }
+        var moveTooltip = function(d) {
+                tooltip
+                    .style("left", (d3.mouse(this)[0]+30) + "px")
+                    .style("top", (d3.mouse(this)[1]+30) + "px")
+                }
+        var hideTooltip = function(d) {
+                tooltip
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 0)
+                }
+
         function ticked() {
             link
                 .attr("x1", function (d) {return d.source.x;})
@@ -309,6 +342,9 @@
                     }
                 })
                 .attr("stroke-width", 2)
+                .on("mouseover", showTooltip)
+                .on("mousemove", moveTooltip)
+                .on("mouseleave", hideTooltip)
                 .on("click", function(d, i){
 
                     c = c+1;
@@ -482,10 +518,15 @@
     function depth(n) {
         $.ajax({
             url: "/ontologyDemo/depth/",
-            dataType: 'html',
+            dataType: 'json',
             type: 'POST',
+            data: {n : n},
             success: function (result) {
-                alert(result);
+                $('#stat').append("=== depth : "+result[0]+" ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                $('#stat').append("Total Triples : "+result[1]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                //alert(result);
+                flag = 1;
+                dataSel();
             }
         });
     }
@@ -514,6 +555,7 @@
             type: 'POST',
             data: {targetProperty: $('#targetProperty').val()},
             success: function (result) {
+                $('#stat').append("reasonings : "+result.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 for(var i=0; i<result.length; i++){
                     $('#stat').append("=== "+result[i][3]+" ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                     $('#stat').append("subject: "+result[i][0]).append("<br>").scrollTop($("#stat")[0].scrollHeight);

@@ -19,6 +19,7 @@ delProperty = None
 delObject = None
 targetPropertyTriples = []
 targetPropertyTriplesRandom = []
+targetProperty = None
 
 def ontologyDemo(request):
     return render(request, "../templates/ontologyDemo.html")
@@ -46,6 +47,9 @@ def ntDraw(data):
     links = dict()
     node_index = 1
     link_index = 1
+    print("===========")
+    print(len(data))
+    print(data)
 
     for t in data:
         e1, r, e2 = t
@@ -125,10 +129,11 @@ def graph(request):  ##### graph #####
             if '.nt' in filePath:
                 input_file = open(filePath, 'r')
                 readData(input_file)
-                if len(l_org) > 200:
-                    ntDraw(random.sample(l_org, 200))
-                else:
-                    ntDraw(l_org)
+                ntDraw(l_org)
+                # if len(l_org) > 200:
+                #     ntDraw(random.sample(l_org, 200))
+                # else:
+                #     ntDraw(l_org)
 
 
             elif '.owl' in filePath:
@@ -220,15 +225,48 @@ def exp(request):  ##### exp #####
 
         return HttpResponse("exp", content_type='text/html')
 
+def get_depth(depth, kb_df, target_relation):
+    # depth 0 : only target relation triples
+    prev_df = kb_df[kb_df.p.str.match(target_relation)]
+    prev_depth_node = []
+    # depth 1 ~~~~
+    for i in range(depth):
+        depth_node = prev_depth_node + list(prev_df.s.values) + list(prev_df.o.values)
+        depth_index = []
+
+        for row, col in kb_df.iterrows():
+            if (col['s'] in depth_node or col['o'] in depth_node ) :
+                depth_index.append(row)
+
+        # get triples
+        depth_df = kb_df.iloc[depth_index]
+
+        #update for next step
+        prev_depth_node = depth_node
+        prev_df = depth_df
+
+    return prev_df.values.tolist()
+
 def depth(request):  ##### depth select #####
+    global l, l_org, targetProperty
     if request.method == 'POST':
-        print("depth")
+        depth = int(request.POST.get('n'))
+        data = pd.read_csv('polls/static/data/test_data.nt', sep='\t', names=['s', 'p', 'o'])
+        for i in range(len(data)):
+            data['s'][i] = data['s'][i].replace(data['s'][i].split('_')[0] + '_', '')
+            data['o'][i] = data['o'][i].replace(data['o'][i].split('_')[0] + '_', '')
 
+        print(depth,'/',len(l_org),'/',targetProperty)
+        l = get_depth(depth, data, targetProperty)
+        print(type(l))
+        ntDraw(l)
+        #print("depth")
+        result = [depth,len(l)]
 
-        return HttpResponse("depth", content_type='text/html')
+        return HttpResponse(json.dumps(result), content_type='application/json')
 
 def targetProperty(request):  ##### targetProperty select #####
-    global l_org, l, targetPropertyTriples, targetPropertyTriplesRandom
+    global l_org, l, targetPropertyTriples, targetPropertyTriplesRandom, targetProperty
     if request.method == 'POST':
         targetProperty = request.POST.get('targetProperty')
         del targetPropertyTriples[:]
