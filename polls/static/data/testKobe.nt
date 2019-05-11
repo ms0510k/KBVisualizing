@@ -1,4 +1,4 @@
-kobe_bryant	led	los_angeles_lakers
+los_angeles_lakers	led	kobe_bryant
 kobe_bryant	plays	basketball
 kobe_bryant	plays	guard
 kobe_bryant	playsinleague	nba
@@ -11,6 +11,5 @@ kobe_bryant	wins	nba_championship
 jared_reiner	playsin	nba
 eddy_curry	playsin	nba
 devean_george	playsin	nba
-kobe_bryant	playsfor	los_angeles_lakers
 kwame_brown	playsfor	los_angeles_lakers
 kwame_brown	playsin	nba

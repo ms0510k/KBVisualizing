@@ -5,17 +5,9 @@
     {% load staticfiles %}
     {% csrf_token %}
     <style type="text/css">
+        .node {}
 
-        .link {
-          fill: none;
-          {#stroke: #ddd;#}
-          stroke-width: 1px;
-        }
-
-        .node {
-          stroke: #000;
-          stroke-width: 1px;
-        }
+        {#.link { stroke: #999; stroke-opacity: .6; stroke-width: 2px; }#}
         input[type=text], select {
             width: 100px;
             display: inline-block;
@@ -200,12 +192,11 @@
     flag = 0;
     svg.append('defs').append('marker')
         .attrs({'id':'arrowhead',
-            'class':'arrow',
             'viewBox':'-0 -5 10 10',
-            'refX':38,  // 화살표 위치
-            'refY':-1.9,
+            'refX':21,  // 화살표 위치
+            'refY':0,
             'orient':'auto',
-            'markerWidth':7,
+            'markerWidth':5,
             'markerHeight':3,
             'xoverflow':'visible'})
         .append('svg:path')
@@ -229,12 +220,10 @@
         update();
 
         function update() {
-
-
             link = g.selectAll(".link")
                 .data(links)
                 .enter()
-                .append("path")
+                .append("line")
                 .attr("class", "link")
                 .attr('marker-end','url(#arrowhead)');
 
@@ -264,8 +253,7 @@
                     'id': function (d, i) {return 'edgelabel' + i},
                     'font-size': 5,
                     'dy' : 6,
-                    'fill': '#aaa',
-                    'opacity':0.5
+                    'fill': '#aaa'
                 });
 
             edgelabels.append('textPath')
@@ -286,8 +274,9 @@
                     .on("end", dragended)
                 );
 
-
-
+            node.append("circle")
+                .attr("r", 8)
+                .style("fill", '#aaa')
 
             node.append("title")
                 .text(function (d) {return d.id;});
@@ -298,26 +287,6 @@
                 .attr("font-size", 8) // node 글씨크기
                 .text(function (d) {return d.name;});
 
-            if(targetP == null){
-                node.style("stroke-opacity", 0.1);
-                node.style("fill-opacity", 0.1);
-                link.style("stroke-opacity", 0.1);
-                link.style("stroke", "#ddd");
-                node.append("circle")
-                .attr("r", 8)
-                .style("fill", '#aaa')
-                .on("mouseover", mouseOver(.1))
-                .on("mouseout", mouseOut);
-            }else {
-                node.style("stroke-opacity", 1);
-                node.style("fill-opacity", 1);
-                link.style("stroke-opacity", 1);
-                node.append("circle")
-                .attr("r", 8)
-                .style("fill", '#aaa');
-            }
-
-
             simulation
                 .nodes(nodes)
                 .on("tick", ticked);
@@ -327,47 +296,6 @@
 
             simulation.alpha(1).restart();
 
-        }
-
-        var linkedByIndex = {};
-        links.forEach(function(d) {
-            linkedByIndex[d.source.index + "," + d.target.index] = 1;
-        });
-
-        // check the dictionary to see if nodes are linked
-        function isConnected(a, b) {
-            return linkedByIndex[a.index + "," + b.index] || linkedByIndex[b.index + "," + a.index] || a.index == b.index;
-        }
-
-        // fade nodes on hover
-        function mouseOver(opacity) {
-            return function(d) {
-                // check all other nodes to see if they're connected
-                // to this one. if so, keep the opacity at 1, otherwise
-                // fade
-                node.style("stroke-opacity", function(o) {
-                    thisOpacity = isConnected(d, o) ? 1 : opacity;
-                    return thisOpacity;
-                });
-                node.style("fill-opacity", function(o) {
-                    thisOpacity = isConnected(d, o) ? 1 : opacity;
-                    return thisOpacity;
-                });
-                // also style link accordingly
-                link.style("stroke-opacity", function(o) {
-                    return o.source === d || o.target === d ? 1 : opacity;
-                });
-                link.style("stroke", function(o){
-                    return o.source === d || o.target === d ? o.source.colour : "#ddd";
-                });
-            };
-        }
-
-        function mouseOut() {
-            node.style("stroke-opacity", 0.1);
-            node.style("fill-opacity", 0.1);
-            link.style("stroke-opacity", 0.1);
-            link.style("stroke", "#ddd");
         }
 
         var tooltip = d3.select("#svgArea")
@@ -402,7 +330,6 @@
 
         function ticked() {
             link
-                .attr("d", positionLink)
                 .attr("x1", function (d) {return d.source.x;})
                 .attr("y1", function (d) {return d.source.y;})
                 .attr("x2", function (d) {return d.target.x;})
@@ -482,25 +409,6 @@
                     return 'rotate(0)';
                 }
             });
-
-            function positionLink(d) {
-                var offset = 30;
-
-                var midpoint_x = (d.source.x + d.target.x) / 2;
-                var midpoint_y = (d.source.y + d.target.y) / 2;
-
-                var dx = (d.target.x - d.source.x);
-                var dy = (d.target.y - d.source.y);
-
-                var normalise = Math.sqrt((dx * dx) + (dy * dy));
-
-                var offSetX = midpoint_x + offset*(dy/normalise);
-                var offSetY = midpoint_y - offset*(dx/normalise);
-
-                return "M" + d.source.x + "," + d.source.y +
-                    "S" + offSetX + "," + offSetY +
-                    " " + d.target.x + "," + d.target.y;
-            }
         }
 
 

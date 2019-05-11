@@ -124,16 +124,16 @@ def graph(request):  ##### graph #####
         #     content = False
 
         if content:
-            filePath = os.path.join(BASE_DIR, "polls/static/data/test_data.nt")
+            filePath = os.path.join(BASE_DIR, "polls/static/data/nell-995-simple.nt")
 
             if '.nt' in filePath:
                 input_file = open(filePath, 'r')
                 readData(input_file)
-                ntDraw(l_org)
-                # if len(l_org) > 200:
-                #     ntDraw(random.sample(l_org, 200))
-                # else:
-                #     ntDraw(l_org)
+                #ntDraw(l_org)
+                if len(l_org) > 10000:
+                    ntDraw(random.sample(l_org, 10000))
+                else:
+                    ntDraw(l_org)
 
 
             elif '.owl' in filePath:
