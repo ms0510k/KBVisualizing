@@ -20,6 +20,9 @@ delObject = None
 targetPropertyTriples = []
 targetPropertyTriplesRandom = []
 targetProperty = None
+#dataPath = 'polls/static/data/nell-995-simple.nt'
+dataPath = 'polls/static/data/test_data.nt'
+dataCount = 5000
 
 def ontologyDemo(request):
     return render(request, "../templates/ontologyDemo.html")
@@ -30,7 +33,7 @@ def readData(input_file):
     global l_org, l
     i = 0
     for line in input_file:
-        print(line)
+        #print(line)
         s, p, o = line.replace('\n', '').replace("concept:", '').replace("concept_", '').split('\t')
         s = s.replace(s.split('_')[0] + '_', '')
         o = o.replace(o.split('_')[0] + '_', '')
@@ -47,9 +50,6 @@ def ntDraw(data):
     links = dict()
     node_index = 1
     link_index = 1
-    print("===========")
-    print(len(data))
-    print(data)
 
     for t in data:
         e1, r, e2 = t
@@ -107,31 +107,14 @@ def graph(request):  ##### graph #####
     if request.method == 'POST':
         content = True
 
-        # def get_path(wildcard):
-        #     app = wx.App(None)
-        #     style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-        #     dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
-        #     if dialog.ShowModal() == wx.ID_OK:
-        #         path = dialog.GetPath()
-        #     else:
-        #         path = None
-        #     dialog.Destroy()
-        #     return path
-        #
-        # filePath = get_path('*.owl;*.nt')
-        #
-        # if filePath == None:
-        #     content = False
-
         if content:
-            filePath = os.path.join(BASE_DIR, "polls/static/data/nell-995-simple.nt")
-
+            filePath = os.path.join(BASE_DIR, dataPath)
             if '.nt' in filePath:
                 input_file = open(filePath, 'r')
                 readData(input_file)
                 #ntDraw(l_org)
-                if len(l_org) > 10000:
-                    ntDraw(random.sample(l_org, 10000))
+                if len(l_org) > dataCount:
+                    ntDraw(random.sample(l_org, dataCount))
                 else:
                     ntDraw(l_org)
 
@@ -151,7 +134,6 @@ def graph(request):  ##### graph #####
                             flag = True
                     if not flag:
                         if isinstance(s, URIRef) and isinstance(o, URIRef) and "subClassOf" in str(p):
-                            print(s.split('#'))
                             parsed_data.append([s.split('#')[-1], p.split('#')[-1], o.split('#')[-1]])
 
                 nodes = dict()
@@ -184,7 +166,6 @@ def graph(request):  ##### graph #####
                 i = 0
 
                 for n in nodes:
-                    print(n)
                     myoutput.write('{')
                     myoutput.write('"name":"' + n + '",')
                     myoutput.write('"label": "",')
@@ -213,8 +194,6 @@ def graph(request):  ##### graph #####
                 myoutput.write(']}')
 
                 myoutput.close()
-
-
 
         return HttpResponse(content, content_type='text/html')
 
@@ -251,16 +230,13 @@ def depth(request):  ##### depth select #####
     global l, l_org, targetProperty
     if request.method == 'POST':
         depth = int(request.POST.get('n'))
-        data = pd.read_csv('polls/static/data/test_data.nt', sep='\t', names=['s', 'p', 'o'])
+        data = pd.read_csv(dataPath, sep='\t', names=['s', 'p', 'o'])
         for i in range(len(data)):
             data['s'][i] = data['s'][i].replace(data['s'][i].split('_')[0] + '_', '')
             data['o'][i] = data['o'][i].replace(data['o'][i].split('_')[0] + '_', '')
 
-        print(depth,'/',len(l_org),'/',targetProperty)
         l = get_depth(depth, data, targetProperty)
-        print(type(l))
         ntDraw(l)
-        #print("depth")
         result = [depth,len(l)]
 
         return HttpResponse(json.dumps(result), content_type='application/json')
@@ -271,25 +247,14 @@ def targetProperty(request):  ##### targetProperty select #####
         targetProperty = request.POST.get('targetProperty')
         del targetPropertyTriples[:]
         del targetPropertyTriplesRandom[:]
-        print("===============================")
-        print(targetPropertyTriples)
 
         flag = False
 
         for i in range(len(l_org)):
             if targetProperty == l_org[i][1]:
-                print(l_org[i])
                 targetPropertyTriples.append(l_org[i])
                 flag = True
 
-        # if len(targetPropertyTriples) > 20:
-        #     for i in range(20):
-        #         print(random.choice(targetPropertyTriples))
-        #         targetPropertyTriplesRandom.append(random.choice(targetPropertyTriples))
-        #     l = targetPropertyTriplesRandom
-        #
-        # else:
-        #     l = targetPropertyTriples
         l = targetPropertyTriples
 
         ntDraw(l)
@@ -301,19 +266,13 @@ def delTriple(request):  ##### Triple Delete & reDraw #####
         delSubject = request.POST.get('subject')
         delProperty = request.POST.get('property')
         delObject = request.POST.get('object')
-        print(delSubject," / ",delProperty," / ",delObject)
         flag = False
 
-        # print("=========================================")
-        # print(l)
         for i in range(len(l)):
             if l[i][0] == delSubject and l[i][2] == delObject:
-                print("in ok")
                 flag = True
                 del l[i]
                 break
-            else:
-                print("no")
         if flag:
             ntDraw(l)
         return HttpResponse(flag, content_type='text/html')
@@ -334,10 +293,7 @@ def runEngine(request):  #####  #####
             tmp.append(e2)
             tmp.append(score)
             lst.append(tmp)
-            print(e1)
-            print(r)
-            print(e2)
-            print(score)
+
         l.append([lst[0][0].replace(lst[0][0].split('_')[0] + '_', ''), lst[0][1], lst[0][2].replace(lst[0][2].split('_')[0] + '_', '')])
         ntDraw(l)
 
