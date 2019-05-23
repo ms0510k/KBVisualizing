@@ -22,7 +22,7 @@
             text-align: center;
         }
         input[type=button] {
-            width: 70px;
+            width: 80px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -78,20 +78,12 @@
                     <input type="button" value="FileLoad" onclick="drawGraph()">
                     <input type="button" value="Export" onclick="exp()">
                 </div>
-                <div style="margin-right: -60%">
-                    <input type="text" id="source" placeholder="Subject">
-                    <input type="text" id="target" placeholder="Object">
-                    <input type="text" id="link" placeholder="Property">
-                    <input type="button" value="ADD" onclick="run('link')">
-                    <input type="text" id="delNode" placeholder="Node">
-                    <input type="button" value="DEL" onclick="run('delNode')">
-                </div>
-                <div style="margin-right: -80.8%; margin-top: 1%;">
+                <div style="margin-left: 80%;">
                     <input type="text" id="targetProperty" placeholder="targetProperty">
                     <input type="button" value="SELECT" onclick="targetProperty()">
 
                     <div class="w3-dropdown-hover">
-                        <input type="button" value="depth">
+                        <input type="button" value="Depth">
                         <div class="w3-dropdown-content w3-bar-block w3-border">
                             <a onclick="depth(0)" class="w3-bar-item w3-button">0</a>
                             <a onclick="depth(1)" class="w3-bar-item w3-button">1</a>
@@ -101,7 +93,7 @@
                             <a onclick="depth(5)" class="w3-bar-item w3-button">5</a>
                         </div>
                     </div>
-                    <input type="button" value="RUN" onclick="runEngine()">
+                    <input type="button" value="Reasoning" onclick="runEngine()">
                 </div>
             </div>
             <div style="border:1px solid #0480be; float: right; width: 15%; height: 30%; overflow:auto; padding: 10px; margin-top: 0.5%; margin-right: 0.5%" id="stat"></div>
@@ -155,7 +147,6 @@
     var linkList_org, nodeList_org; // 로드파일로 로드된 처음 데이터이자 노드 추가또는 삭제로 업데이트된 데이터
     var linkList, nodeList;
     var flag = 0;   // flag가 1이면 파일로드 2이면 업데이트된 리스트로 draw
-    var colors = d3.scaleOrdinal(d3.schemeCategory10);
     var svg = d3.select("svg"),
         width = +svg.attr("width"),
         height = +svg.attr("height");
@@ -225,16 +216,12 @@
 
         function update() {
 
-
             link = g.selectAll(".link")
                 .data(links)
                 .enter()
                 .append("path")
                 .attr("class", "link")
                 .attr('marker-end','url(#arrowhead)');
-
-            //link.append("title")
-            //    .text(function (d) {return d.type;});
 
             edgepaths = g.selectAll(".edgepath")
                 .data(links)
@@ -280,22 +267,12 @@
                     .on("drag", dragged)
                     .on("end", dragended)
                 )
-                {#.on("mouseover", function(d) {#}
-                {#    div.transition()#}
-                {#        .duration(200)#}
-                {#        .style("opacity", .9);#}
-                {#    div	.html(d.name)#}
-                {#        .style("left", (d3.event.pageX) + "px")#}
-                {#        .style("top", (d3.event.pageY - 28) + "px");#}
-                {#    })#}
                 .on("mouseout", function(d) {
                     div.transition()
                         .duration(500)
                         .style("opacity", 0);
                 });
 
-            //node.append("title")
-            //    .text(function (d) {return d.name;});
 
             node.append("text")
                 .attr("dy", 12)  // node label 위치
@@ -306,9 +283,9 @@
             arrow = svg.selectAll(".arrow");
 
             if(targetP == null){
-                node.style("stroke-opacity", 0.3);
-                node.style("fill-opacity", 0.3);
-                link.style("stroke-opacity", 0.3);
+                node.style("stroke-opacity", 0.7);
+                node.style("fill-opacity", 0.7);
+                link.style("stroke-opacity", 0.7);
                 link.style("stroke", "#ddd");
                 node.append("circle")
                 .attr("r", 8)
@@ -370,9 +347,9 @@
         }
 
         function mouseOut() {
-            node.style("stroke-opacity", 0.3);
-            node.style("fill-opacity", 0.3);
-            link.style("stroke-opacity", 0.3);
+            node.style("stroke-opacity", 0.7);
+            node.style("fill-opacity", 0.7);
+            link.style("stroke-opacity", 0.7);
             link.style("stroke", "#ddd");
         }
 
@@ -477,8 +454,6 @@
             }
         }
 
-
-
         function dragstarted(d) {
             if (!d3.event.active) simulation.alphaTarget(.03).restart()
             d.fx = d.x;
@@ -510,63 +485,6 @@
                 }
             }
         });
-    }
-    function run(type) {    // run버튼 누르면 노드와 링크 연결 source target link
-        if(type == 'link'){
-            var source,target;
-            var source_c = 0;
-            var target_c = 0;
-            linking();
-            function linking(){ // 노드리스트에 source target value값 탐색
-                for(var i=0; i<nodeList.length; i++){
-                    if(nodeList[i]['name']==$('#source').val()){
-                        source = nodeList[i]['id'];
-                        source_c = 1;
-                    }
-                    if(nodeList[i]['name']==$('#target').val()){
-                        target = nodeList[i]['id'];
-                        target_c = 1;
-                    }
-                }
-            }
-            if(source_c == 0){
-                nodeList.push({"name":$('#source').val(), "label":"","id":nodeList[nodeList.length-1]['id']+1});
-                source_c = 1;
-                linking();
-            }
-            if(target_c == 0){
-                nodeList.push({"name":$('#target').val(), "label":"","id":nodeList[nodeList.length-1]['id']+1});
-                target_c = 1;
-                linking();
-            }
-            if(source_c == 1 && target_c ==1){
-                linkList.push({"source" : source, "target" : target, "type" : $('#link').val()});
-                flag = 2;
-                dataSel();
-            }
-
-        }else if(type == 'delNode'){    // del버튼 누르면 노드 삭제
-            var lLen = linkList.length;
-            var nLen = nodeList.length;
-            for(var i=0; i<lLen; i++){
-                if(linkList[i]['source']['name']!=$('#delNode').val() && linkList[i]['target']['name']!=$('#delNode').val()){   // 삭제할 노드와 관련없는 링크만 탐색
-                    linkList.push(linkList[i]); // 탐색된 링크 추가
-                }
-            }
-            for(var i=0; i<nLen; i++){
-                if(nodeList[i]['name']!=$('#delNode').val()){   // 삭제할 노드를 제외한 다른 노드들 탐색
-                    nodeList.push(nodeList[i]); // 탐색된 노드들 추가
-                }
-            }
-            for(var i=0; i<lLen; i++){
-                linkList.shift();   // 링크리스트 앞에서부터 기존꺼 삭제
-            }
-            for(var i=0; i<nLen; i++){
-                nodeList.shift();   // 노드리스트 앞에서부터 기존꺼 삭제
-            }
-            flag = 2;
-            dataSel();
-        }
     }
     function exp() {
         $.ajax({
