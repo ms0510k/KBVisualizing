@@ -23,14 +23,14 @@
         }
         input[type=button] {
             width: 80px;
-            background-color: #4CAF50;
+            background-color: #abd0bc;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
         input[type=button]:hover {
-            background-color: #45a049;
+            background-color: #abd0bc;
         }
     </style>
     <meta charset="UTF-8">
@@ -72,18 +72,18 @@
 <body>
 <div class="container-fluid" style="height: 920px; margin-top: 10px">
     <div class="col-lg-12">
-        <div class="panel panel-primary" style="height: 920px;">
-            <div class="panel-heading" style="text-align: center;">
+        <div class="panel" style="height: 920px; border:1px solid #37474f">
+            <div class="panel-heading" style="text-align: center; background-color: #37474f;">
                 <div style="float: left;">
-                    <input type="button" value="FileLoad" onclick="drawGraph()">
-                    <input type="button" value="Export" onclick="exp()">
+                    <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>
+                    <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
                 <div style="margin-left: 75%;">
                     <input type="text" id="targetProperty" placeholder="targetProperty">
-                    <input type="button" value="SELECT" onclick="targetProperty()">
-
+                    <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
                     <div class="w3-dropdown-hover">
-                        <input type="button" value="Depth">
+                        <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>
+
                         <div class="w3-dropdown-content w3-bar-block w3-border">
                             <a onclick="depth(0)" class="w3-bar-item w3-button">0</a>
                             <a onclick="depth(1)" class="w3-bar-item w3-button">1</a>
@@ -93,10 +93,11 @@
                             <a onclick="depth(5)" class="w3-bar-item w3-button">5</a>
                         </div>
                     </div>
-                    <input type="button" value="Reasoning" onclick="runEngine()">
+                    <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
+
                 </div>
             </div>
-            <div style="border:1px solid #0480be; float: right; width: 15%; height: 30%; overflow:auto; padding: 10px; margin-top: 0.5%; margin-right: 0.5%" id="stat"></div>
+            <div style="border:1px solid #37474f; float: right; width: 15%; height: 30%; overflow:auto; padding: 10px; margin-top: 0.5%; margin-right: 0.5%" id="stat"></div>
             <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 84.5%;">
                 <svg width="1860" height="830" style="{% comment %}border:1px solid red;{% endcomment %}"></svg>
             </div>
@@ -166,7 +167,10 @@
 
                 linkList = JSON.parse(JSON.stringify(linkList_org));
                 nodeList = JSON.parse(JSON.stringify(nodeList_org));
-
+                console.log(linkList.length);
+                $('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                $('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                $('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 draw(linkList, nodeList, 0);
             }).fail(function(data){
                 console.log("Fail to load\nError code: "+ data);
@@ -372,7 +376,7 @@
                     div.transition()
                         .duration(200)
                         .style("opacity", .9);
-                    div	.html(d.type)
+                    div   .html(d.type)
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) + "px");
                     })
