@@ -279,6 +279,7 @@
 
 
             node.append("text")
+                .attr("id", "textColor")
                 .attr("dy", 12)  // node label 위치
                 .attr("dx", -8)
                 .attr("font-size", 8) // node 글씨크기
@@ -287,15 +288,16 @@
             arrow = svg.selectAll(".arrow");
 
             if(targetP == null){
-                node.style("stroke-opacity", 0.7);
-                node.style("fill-opacity", 0.7);
-                link.style("stroke-opacity", 0.7);
+                node.style("fill", "white");
+                node.style("stroke-opacity", 0.3);
+                node.style("fill-opacity", 0.3);
+                link.style("stroke-opacity", 0.3);
                 link.style("stroke", "#ddd");
                 node.append("circle")
                 .attr("r", 8)
-                .style("fill", '#aaa')
-                .on("mouseover", mouseOver(.1))
-                .on("mouseout", mouseOut);
+                .style("fill", '#000000')
+                .on("click", mouseOver(.3));
+                //.on("mouseout", mouseOut);
             }else {
                 node.style("stroke-opacity", 1);
                 node.style("fill-opacity", 1);
@@ -332,8 +334,16 @@
                 // check all other nodes to see if they're connected
                 // to this one. if so, keep the opacity at 1, otherwise
                 // fade
+                node.style("fill", function(o) {
+                    if(isConnected(d, o)){
+                        console.log("ok!")
+                        return "black";
+                    }else {return "white"}
+                });
+
                 node.style("stroke-opacity", function(o) {
                     thisOpacity = isConnected(d, o) ? 1 : opacity;
+                    //console.log("tttt"+thisOpacity);
                     return thisOpacity;
                 });
                 node.style("fill-opacity", function(o) {
@@ -351,9 +361,9 @@
         }
 
         function mouseOut() {
-            node.style("stroke-opacity", 0.7);
-            node.style("fill-opacity", 0.7);
-            link.style("stroke-opacity", 0.7);
+            node.style("stroke-opacity", 0.3);
+            node.style("fill-opacity", 0.3);
+            link.style("stroke-opacity", 0.3);
             link.style("stroke", "#ddd");
         }
 
