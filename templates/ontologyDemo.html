@@ -12,7 +12,6 @@
         }
 
         input[type=text], select {
-            width: 100px;
             display: inline-block;
             border: 1px solid #ccc;
             border-radius: 4px;
@@ -79,7 +78,8 @@
                     <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
                 <div style="margin-left: 75%;">
-                    <input type="text" id="targetProperty" placeholder="targetProperty">
+                    <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
+                    <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="athleteplaysinleague">
                     <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
                     <div class="w3-dropdown-hover">
                         <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>
@@ -275,7 +275,21 @@
                     div.transition()
                         .duration(500)
                         .style("opacity", 0);
-                });
+                })
+                .on("contextmenu", function(d){
+                    d3.event.preventDefault();
+                    $.ajax({
+                            url: "/ontologyDemo/objectReasoning/",
+                            dataType: 'json',
+                            type: 'POST',
+                            data: {object: d.name, threshold: $('#threshold').val()},
+                            success: function (result) {
+                                flag = 1;
+                                dataSel();
+                            }
+                        });
+                    $('#threshold').val('');
+                    });
 
 
             node.append("text")
@@ -304,7 +318,7 @@
                 link.style("stroke-opacity", 1);
                 node.append("circle")
                 .attr("r", 8)
-                .style("fill", '#aaa');
+                .style("fill", '#000000');
             }
 
 
@@ -567,7 +581,7 @@
             type: 'POST',
             data: {targetProperty: $('#targetProperty').val()},
             success: function (result) {
-                $('#stat').append("Number of Inferred Triples : : "+result.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                $('#stat').append("Number of Inferred Triples : "+result.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 for(var i=0; i<result.length; i++){
                     $('#stat').append("=== "+result[i][3]+" ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                     $('#stat').append("subject: "+result[i][0]).append("<br>").scrollTop($("#stat")[0].scrollHeight);

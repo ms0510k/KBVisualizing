@@ -28,4 +28,5 @@ urlpatterns = [
     url(r'^ontologyDemo/targetProperty/$', views.targetProperty, name='targetProperty'),
     url(r'^ontologyDemo/delTriple/$', views.delTriple, name='delTriple'),
     url(r'^ontologyDemo/runEngine/$', views.runEngine, name='runEngine'),
+    url(r'^ontologyDemo/objectReasoning/$', views.objectReasoning, name='objectReasoning'),
 ]

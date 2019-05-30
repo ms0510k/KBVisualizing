@@ -22,6 +22,7 @@ targetPropertyTriplesRandom = []
 targetProperty = None
 #dataPath = 'polls/static/data/nell-995-simple.nt'
 dataPath = 'polls/static/data/test_data.nt'
+#dataPath = 'polls/static/data/test.nt'
 dataCount = 5000
 
 def ontologyDemo(request):
@@ -299,3 +300,26 @@ def runEngine(request):  #####  #####
 
 
         return HttpResponse(json.dumps(lst), content_type='application/json')
+
+def objectReasoning(request):  #####  #####
+    global l_org, l, data, delSubject, delProperty, delObject
+    if request.method == 'POST':
+        object = request.POST.get('object')
+        threshold = request.POST.get('threshold')
+        #print("objectReasoning_test", object)
+        #print("threshold_test", threshold)
+        ### searching code ###
+        test_lst = [object, threshold]
+
+
+        ### end code ###
+        test_nt = [["jim_jackson", "test_p1", "test_o1"],["test_s2", "test_p2", "jim_jackson"],["jim_jackson", "test_p3", "test_o3"]]
+        for i in range(len(test_nt)):
+            l.append(test_nt[i])
+
+        #print("test//test//test//test//test//test//test//")
+        #print(l)
+        ntDraw(l)
+
+
+        return HttpResponse(json.dumps(test_nt), content_type='application/json')
