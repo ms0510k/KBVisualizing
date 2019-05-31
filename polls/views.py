@@ -313,13 +313,14 @@ def objectReasoning(request):  #####  #####
 
 
         ### end code ###
-        test_nt = [["jim_jackson", "test_p1", "test_o1"],["test_s2", "test_p2", "jim_jackson"],["jim_jackson", "test_p3", "test_o3"]]
+        test_nt = [["jim_jackson", "athletePlaysForTeam", "LA_Lakers"],["jim_jackson", "athletePlaysSports", "Basketball"],["jim_jackson", "BornIn", "Toledo"]]
         for i in range(len(test_nt)):
             l.append(test_nt[i])
+        test_nt_with_score = [["jim_jackson", "athletePlaysForTeam", "LA_Lakers", 0.97],["jim_jackson", "athletePlaysSports", "Basketball", 0.91],["jim_jackson", "BornIn", "Toledo", 0.89]]
 
         #print("test//test//test//test//test//test//test//")
         #print(l)
         ntDraw(l)
 
 
-        return HttpResponse(json.dumps(test_nt), content_type='application/json')
+        return HttpResponse(json.dumps(test_nt_with_score), content_type='application/json')

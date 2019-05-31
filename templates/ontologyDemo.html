@@ -7,8 +7,8 @@
     <style type="text/css">
 
         .link {
-          fill: none;
-          stroke-width: 1px;
+            fill: none;
+            stroke-width: 1.25px;
         }
 
         input[type=text], select {
@@ -77,7 +77,7 @@
                     <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>
                     <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
-                <div style="margin-left: 75%;">
+                <div style="margin-left: 70%;">
                     <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
                     <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="athleteplaysinleague">
                     <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
@@ -97,9 +97,11 @@
 
                 </div>
             </div>
-            <div style="border:1px solid #37474f; float: right; width: 15%; height: 30%; overflow:auto; padding: 10px; margin-top: 0.5%; margin-right: 0.5%" id="stat"></div>
+
             <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 84.5%;">
-                <svg width="1860" height="830" style="{% comment %}border:1px solid red;{% endcomment %}"></svg>
+                <svg width="1860" height="830" style="{% comment %}border:1px solid red;{% endcomment %} ">
+                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -53%; margin-right: -18%; text-align: left; " id="stat"></div>
+                </svg>
             </div>
         </div>
     </div>
@@ -155,8 +157,8 @@
     var test = null;
     var c = 0;
     var div = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        .attr("class", "tooltip")
+        .style("opacity", 0);
     function dataSel() {
         g.selectAll("*").remove();    // svg 초기화
         if(flag==1){
@@ -192,7 +194,7 @@
         .attrs({'id':'arrowhead',
             'class':'arrow',
             'viewBox':'-0 -5 10 10',
-            'refX':38,  // 화살표 위치
+            'refX':30,  // 화살표 위치
             'refY':-1.9,
             'orient':'auto',
             'markerWidth':7,
@@ -241,7 +243,7 @@
 
 
             edgelabels = g.selectAll(".edgelabel")
-                //.data(links)
+            //.data(links)
                 .enter()
                 .append('text')
                 .style("pointer-events", "none")
@@ -279,17 +281,21 @@
                 .on("contextmenu", function(d){
                     d3.event.preventDefault();
                     $.ajax({
-                            url: "/ontologyDemo/objectReasoning/",
-                            dataType: 'json',
-                            type: 'POST',
-                            data: {object: d.name, threshold: $('#threshold').val()},
-                            success: function (result) {
-                                flag = 1;
-                                dataSel();
+                        url: "/ontologyDemo/objectReasoning/",
+                        dataType: 'json',
+                        type: 'POST',
+                        data: {object: d.name, threshold: $('#threshold').val()},
+                        success: function (result) {
+                            $('#stat').append("=== Reasoning Result ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                            for(var i=0; i<result.length; i++){
+                                $('#stat').append("&#60;"+result[i][0]+", "+result[i][1]+", "+result[i][2]+"&#62; : "+result[i][3]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                             }
-                        });
-                    $('#threshold').val('');
+                            flag = 1;
+                            dataSel();
+                        }
                     });
+                    $('#threshold').val('');
+                });
 
 
             node.append("text")
@@ -308,17 +314,17 @@
                 link.style("stroke-opacity", 0.3);
                 link.style("stroke", "#ddd");
                 node.append("circle")
-                .attr("r", 8)
-                .style("fill", '#000000')
-                .on("click", mouseOver(.3));
+                    .attr("r", 8)
+                    .style("fill", '#000000')
+                    .on("click", mouseOver(.3));
                 //.on("mouseout", mouseOut);
             }else {
                 node.style("stroke-opacity", 1);
                 node.style("fill-opacity", 1);
                 link.style("stroke-opacity", 1);
                 node.append("circle")
-                .attr("r", 8)
-                .style("fill", '#000000');
+                    .attr("r", 8)
+                    .style("fill", '#000000');
             }
 
 
@@ -403,7 +409,7 @@
                     div   .html(d.type)
                         .style("left", (d3.event.pageX) + "px")
                         .style("top", (d3.event.pageY - 28) + "px");
-                    })
+                })
                 .on("mouseout", function(d) {
                     div.transition()
                         .duration(500)
@@ -564,15 +570,15 @@
         });
 
         $.ajax({
-                url: "/ontologyDemo/depth/",
-                dataType: 'json',
-                type: 'POST',
-                data: {n : 0},
-                success: function (result) {
-                    prevC = Number(result[1]);
-                    $('#stat').append("# of Target Triples : "+prevC).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
-                }
-            });
+            url: "/ontologyDemo/depth/",
+            dataType: 'json',
+            type: 'POST',
+            data: {n : 0},
+            success: function (result) {
+                prevC = Number(result[1]);
+                $('#stat').append("# of Target Triples : "+prevC).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
+            }
+        });
     }
     function runEngine(){
         $.ajax({
