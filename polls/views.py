@@ -22,8 +22,9 @@ targetPropertyTriplesRandom = []
 targetProperty = None
 #dataPath = 'polls/static/data/nell-995-simple.nt'
 dataPath = 'polls/static/data/test_data.nt'
-#dataPath = 'polls/static/data/test.nt'
-dataCount = 5000
+#dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
+#dataPath = 'polls/static/data/entryKB.nt'
+dataCount = 10000
 
 def ontologyDemo(request):
     return render(request, "../templates/ontologyDemo.html")
@@ -230,11 +231,20 @@ def get_depth(depth, kb_df, target_relation):
 def depth(request):  ##### depth select #####
     global l, l_org, targetProperty
     if request.method == 'POST':
-        depth = int(request.POST.get('n'))
-        data = pd.read_csv(dataPath, sep='\t', names=['s', 'p', 'o'])
+        depth = int(request.POST.get('n')) #depth 숫자 받기
+        #data = pd.read_csv(dataPath, sep='\t', names=['s', 'p', 'o'])
+        data = []
+        for line in open(dataPath, 'r'):
+            s, p, o = line.replace('\n', '').replace("concept:", '').replace("concept_", '').split('\t')
+            data.append([s, p, o])
+        data = pd.DataFrame(data)
+        data.columns = ['s', 'p', 'o']
+
+        #print(data[0:1])
         for i in range(len(data)):
             data['s'][i] = data['s'][i].replace(data['s'][i].split('_')[0] + '_', '')
             data['o'][i] = data['o'][i].replace(data['o'][i].split('_')[0] + '_', '')
+
 
         l = get_depth(depth, data, targetProperty)
         ntDraw(l)
@@ -250,6 +260,9 @@ def targetProperty(request):  ##### targetProperty select #####
         del targetPropertyTriplesRandom[:]
 
         flag = False
+        print("=========")
+        print(len(l_org))
+        print(l_org[10])
 
         for i in range(len(l_org)):
             if targetProperty == l_org[i][1]:
@@ -282,6 +295,8 @@ def runEngine(request):  #####  #####
     global l_org, l, data, delSubject, delProperty, delObject
     if request.method == 'POST':
         runData = data[data['e1'].str.contains(delSubject) & data['e2'].str.contains(delObject)].sort_values('score', ascending=False)
+        print("=========")
+        print(runData)
         lst = []
         for i in range(len(runData)):
             tmp = []
@@ -313,10 +328,16 @@ def objectReasoning(request):  #####  #####
 
 
         ### end code ###
-        test_nt = [["jim_jackson", "athletePlaysForTeam", "LA_Lakers"],["jim_jackson", "athletePlaysSports", "Basketball"],["jim_jackson", "BornIn", "Toledo"]]
+        test_nt = [["b_j__ryan", "athleteplaysinleague", "mlb"],["ben_hendrickson", "athleteplaysinleague", "mlb"],["clemens", "athleteplaysinleague", "mlb"],
+                   ["edgardo_alfonzo", "athleteplaysinleague", "mlb"],["jack_cassel", "athleteplaysinleague", "mlb"],["jay_payton", "athleteplaysinleague", "mlb"],
+                   ["jerry_owens", "athleteplaysinleague", "mlb"],["remon_santiago", "athleteplaysinleague", "mlb"],["tyler_johnson", "athleteplaysinleague", "mlb"],
+                   ["lou_gehrig", "athleteplaysinleague", "mlb"],["bonds", "athleteplaysinleague", "mlb"]]
         for i in range(len(test_nt)):
             l.append(test_nt[i])
-        test_nt_with_score = [["jim_jackson", "athletePlaysForTeam", "LA_Lakers", 0.97],["jim_jackson", "athletePlaysSports", "Basketball", 0.91],["jim_jackson", "BornIn", "Toledo", 0.89]]
+        test_nt_with_score = [["b_j__ryan", "athleteplaysinleague", "mlb", 1.0],["ben_hendrickson", "athleteplaysinleague", "mlb", 1.0],["clemens", "athleteplaysinleague", "mlb", 1.0],
+                   ["edgardo_alfonzo", "athleteplaysinleague", "mlb", 1.0],["jack_cassel", "athleteplaysinleague", "mlb", 1.0],["jay_payton", "athleteplaysinleague", "mlb", 1.0],
+                   ["jerry_owens", "athleteplaysinleague", "mlb", 1.0],["remon_santiago", "athleteplaysinleague", "mlb", 1.0],["tyler_johnson", "athleteplaysinleague", "mlb", 1.0],
+                   ["lou_gehrig", "athleteplaysinleague", "mlb", 0.99],["bonds", "athleteplaysinleague", "mlb", 0.97]]
 
         #print("test//test//test//test//test//test//test//")
         #print(l)

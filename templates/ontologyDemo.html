@@ -8,7 +8,7 @@
 
         .link {
             fill: none;
-            stroke-width: 1.25px;
+            stroke-width: 0.8px;
         }
 
         input[type=text], select {
@@ -154,8 +154,10 @@
         width = +svg.attr("width"),
         height = +svg.attr("height");
     var targetP = null;
+    var targetE = null;
     var test = null;
     var c = 0;
+    var addList = new Array();
     var div = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
@@ -267,6 +269,7 @@
                 .data(nodes)
                 .enter()
                 .append("g")
+                .attr("id", function(d){return d.name})
                 .attr("class", "node")
                 .call(d3.drag()
                     .on("start", dragstarted)
@@ -280,14 +283,17 @@
                 })
                 .on("contextmenu", function(d){
                     d3.event.preventDefault();
+                    targetE = d.name;
                     $.ajax({
                         url: "/ontologyDemo/objectReasoning/",
                         dataType: 'json',
                         type: 'POST',
-                        data: {object: d.name, threshold: $('#threshold').val()},
+                        data: {object: targetE, threshold: $('#threshold').val()},
                         success: function (result) {
-                            $('#stat').append("=== Reasoning Result ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                            $('#stat').append("=== Reasoning Result :",result.length,"===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                            addList = [];
                             for(var i=0; i<result.length; i++){
+                                addList.push(result[i][0]);
                                 $('#stat').append("&#60;"+result[i][0]+", "+result[i][1]+", "+result[i][2]+"&#62; : "+result[i][3]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                             }
                             flag = 1;
@@ -324,9 +330,14 @@
                 link.style("stroke-opacity", 1);
                 node.append("circle")
                     .attr("r", 8)
-                    .style("fill", '#000000');
+                    .style("fill", function(d){
+                        if(d.name == addList[0]){
+                            return '#1736cc';
+                        }else{
+                            return '#000000';
+                        }
+                    });
             }
-
 
             simulation
                 .nodes(nodes)
@@ -337,7 +348,6 @@
 
             simulation.alpha(1).restart();
         }
-
         var linkedByIndex = {};
         links.forEach(function(d) {
             linkedByIndex[d.source.index + "," + d.target.index] = 1;
@@ -396,8 +406,10 @@
                 .attr("y2", function (d) {return d.target.y;})
                 .attr("stroke", function (d) {
                     if(d.type == targetP){
+                        //.log("targetP")
                         return "#cc120e"
                     }else{
+                        //console.log("targetN")
                         return "#5d5d5d"
                     }
                 })
