@@ -78,7 +78,7 @@
                     <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
                 <div style="margin-left: 70%;">
-                    <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
+                    <input type="text" id="threshold" style="width: 70px;" placeholder="threshold" value="0.8">
                     <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="athleteplaysinleague">
                     <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
                     <div class="w3-dropdown-hover">
@@ -290,7 +290,7 @@
                         type: 'POST',
                         data: {object: targetE, threshold: $('#threshold').val()},
                         success: function (result) {
-                            $('#stat').append("=== Reasoning Result :",result.length,"===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                            $('#stat').append("=== Reasoning Result: ",result.length," ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                             addList = [];
                             for(var i=0; i<result.length; i++){
                                 addList.push(result[i][0]);
@@ -300,7 +300,7 @@
                             dataSel();
                         }
                     });
-                    $('#threshold').val('');
+                    //$('#threshold').val('');
                 });
 
 
@@ -331,7 +331,7 @@
                 node.append("circle")
                     .attr("r", 8)
                     .style("fill", function(d){
-                        if(d.name == addList[0]){
+                        if(targetE == d.name){
                             return '#1736cc';
                         }else{
                             return '#000000';

@@ -2,15 +2,15 @@ from django.http import HttpResponse
 from django.shortcuts import render
 import rdflib
 from rdflib import URIRef
-#import wx
+import copy
 import random
 import pandas as pd
 import json
 import os
 from DjangoTest.settings import BASE_DIR
 
-engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/engine_df.csv")
-data = pd.read_csv(engineDataPath)
+engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/model_answer.csv")
+data = pd.read_csv(engineDataPath, names=['e1','r','e2','score'])
 
 l_org = []
 l = []
@@ -24,7 +24,7 @@ targetProperty = None
 dataPath = 'polls/static/data/test_data.nt'
 #dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
 #dataPath = 'polls/static/data/entryKB.nt'
-dataCount = 10000
+dataCount = 1000
 
 def ontologyDemo(request):
     return render(request, "../templates/ontologyDemo.html")
@@ -46,14 +46,14 @@ def readData(input_file):
             # if i <= 200:
             #     l.append([s, p, o])
 
-def ntDraw(data):
+def ntDraw(data_l):
     nodes = dict()
     triples = []
     links = dict()
     node_index = 1
     link_index = 1
 
-    for t in data:
+    for t in data_l:
         e1, r, e2 = t
 
         if e1 not in nodes:
@@ -260,9 +260,9 @@ def targetProperty(request):  ##### targetProperty select #####
         del targetPropertyTriplesRandom[:]
 
         flag = False
-        print("=========")
-        print(len(l_org))
-        print(l_org[10])
+        #print("=========")
+        #print(len(l_org))
+        #print(l_org[10])
 
         for i in range(len(l_org)):
             if targetProperty == l_org[i][1]:
@@ -295,8 +295,8 @@ def runEngine(request):  #####  #####
     global l_org, l, data, delSubject, delProperty, delObject
     if request.method == 'POST':
         runData = data[data['e1'].str.contains(delSubject) & data['e2'].str.contains(delObject)].sort_values('score', ascending=False)
-        print("=========")
-        print(runData)
+        #print("=========")
+        #print(runData)
         lst = []
         for i in range(len(runData)):
             tmp = []
@@ -321,27 +321,39 @@ def objectReasoning(request):  #####  #####
     if request.method == 'POST':
         object = request.POST.get('object')
         threshold = request.POST.get('threshold')
-        #print("objectReasoning_test", object)
-        #print("threshold_test", threshold)
-        ### searching code ###
-        test_lst = [object, threshold]
+        threshold = float(threshold)
+        print(type(threshold),threshold)
+        runData = data[data['e2'].str.contains(object)].sort_values('score', ascending=False)
+        lst = []
+        json_l = []
+        tmp_l = copy.deepcopy(l)
+        l = []
+        for i in range(len(tmp_l)):
+            if tmp_l[i][2] != object:
+                l.append(tmp_l[i])
+        for i in range(len(runData)):
+            tmp = []
+            score = runData.values[i][-1]
+            e1 = runData.values[i][0]
+            r = runData.values[i][1]
+            e2 = runData.values[i][2]
+            tmp.append(e1)
+            tmp.append(r)
+            tmp.append(e2)
+            tmp.append(score)
+            lst.append(tmp)
 
-
-        ### end code ###
-        test_nt = [["b_j__ryan", "athleteplaysinleague", "mlb"],["ben_hendrickson", "athleteplaysinleague", "mlb"],["clemens", "athleteplaysinleague", "mlb"],
-                   ["edgardo_alfonzo", "athleteplaysinleague", "mlb"],["jack_cassel", "athleteplaysinleague", "mlb"],["jay_payton", "athleteplaysinleague", "mlb"],
-                   ["jerry_owens", "athleteplaysinleague", "mlb"],["remon_santiago", "athleteplaysinleague", "mlb"],["tyler_johnson", "athleteplaysinleague", "mlb"],
-                   ["lou_gehrig", "athleteplaysinleague", "mlb"],["bonds", "athleteplaysinleague", "mlb"]]
-        for i in range(len(test_nt)):
-            l.append(test_nt[i])
-        test_nt_with_score = [["b_j__ryan", "athleteplaysinleague", "mlb", 1.0],["ben_hendrickson", "athleteplaysinleague", "mlb", 1.0],["clemens", "athleteplaysinleague", "mlb", 1.0],
-                   ["edgardo_alfonzo", "athleteplaysinleague", "mlb", 1.0],["jack_cassel", "athleteplaysinleague", "mlb", 1.0],["jay_payton", "athleteplaysinleague", "mlb", 1.0],
-                   ["jerry_owens", "athleteplaysinleague", "mlb", 1.0],["remon_santiago", "athleteplaysinleague", "mlb", 1.0],["tyler_johnson", "athleteplaysinleague", "mlb", 1.0],
-                   ["lou_gehrig", "athleteplaysinleague", "mlb", 0.99],["bonds", "athleteplaysinleague", "mlb", 0.97]]
-
-        #print("test//test//test//test//test//test//test//")
-        #print(l)
+        # print(lst)
+        for i in range(len(lst)):
+            if lst[i][3] > threshold:
+                l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
+                          lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
+                json_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
+                          lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
+        print("=======")
+        print(len(l))
+        print(l)
         ntDraw(l)
 
 
-        return HttpResponse(json.dumps(test_nt_with_score), content_type='application/json')
+        return HttpResponse(json.dumps(json_l), content_type='application/json')
