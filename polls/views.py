@@ -21,12 +21,21 @@ targetPropertyTriples = []
 targetPropertyTriplesRandom = []
 targetProperty = None
 #dataPath = 'polls/static/data/nell-995-simple.nt'
-dataPath = 'polls/static/data/test_data.nt'
+#dataPath = 'polls/static/data/test_data.nt'
 #dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
-#dataPath = 'polls/static/data/entryKB.nt'
-dataCount = 1000
+dataPath = 'polls/static/data/entryKB.nt'
+dataCount = 100
 
 def ontologyDemo(request):
+    global l_org, l, delObject, delProperty, delSubject, targetProperty, targetPropertyTriples, targetPropertyTriplesRandom
+    l_org = []
+    l = []
+    delSubject = None
+    delProperty = None
+    delObject = None
+    targetPropertyTriples = []
+    targetPropertyTriplesRandom = []
+    targetProperty = None
     return render(request, "../templates/ontologyDemo.html")
 
 g = rdflib.Graph()
