@@ -388,7 +388,8 @@ def relationReasoning(request):  #####  #####
             lst.append(tmp)
 
         print('lstlen:',len(lst))
-        l = []
+        print(lst)
+        #l = []
         print('llen:',len(l))
         for i in range(len(lst)):
             if lst[i][3] > threshold:

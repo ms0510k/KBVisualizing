@@ -157,6 +157,7 @@
     var targetE = null;
     var delProperty = null;
     var del_target = null;
+    var befor_len = 0;
     var c = 0;
     var addList = new Array();
     var div = d3.select("body").append("div")
@@ -173,6 +174,7 @@
                 linkList = JSON.parse(JSON.stringify(linkList_org));
                 nodeList = JSON.parse(JSON.stringify(nodeList_org));
                 console.log(linkList.length);
+                console.log(linkList);
                 $('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 $('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 $('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
@@ -401,8 +403,13 @@
                 .attr("y2", function (d) {return d.target.y;})
                 .attr("stroke", function (d) {
                     if(d.type == targetP){
+                        if(d.index < befor_len){
+                            return "#9a9a9a"
+                        }else {
+                            return "#cc120e"
+                        }
                         //.log("targetP")
-                        return "#cc120e"
+
                     }else{
                         //console.log("targetN")
                         return "#5d5d5d"
@@ -588,6 +595,7 @@
         });
     }
     function runEngine(){
+        console.log(linkList)
         if(delProperty != null){
             $.ajax({
                 url: "/ontologyDemo/runEngine/",
@@ -616,7 +624,7 @@
                 type: 'POST',
                 data: {relation: targetP, threshold: $('#threshold').val() },
                 success: function (result) {
-                    console.log(result.length);
+                    befor_len = linkList.length;
                     $('#stat').append("=== "+targetP+"reasoning: "+result.length+" ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                     $('#stat').append("threshold: "+$('#threshold').val()).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                     flag = 1;
