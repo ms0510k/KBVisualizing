@@ -24,7 +24,7 @@ targetProperty = None
 #dataPath = 'polls/static/data/test_data.nt'
 #dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
 dataPath = 'polls/static/data/entryKB.nt'
-dataCount = 100
+dataCount = 500
 
 def ontologyDemo(request):
     global l_org, l, delObject, delProperty, delSubject, targetProperty, targetPropertyTriples, targetPropertyTriplesRandom
@@ -309,10 +309,10 @@ def runEngine(request):  #####  #####
         lst = []
         for i in range(len(runData)):
             tmp = []
-            score = runData.values[i][-1]
-            e1 = runData.values[i][2]
-            r = runData.values[i][3]
-            e2 = runData.values[i][4]
+            score = runData.values[i][3]
+            e1 = runData.values[i][0]
+            r = runData.values[i][1]
+            e2 = runData.values[i][2]
             tmp.append(e1)
             tmp.append(r)
             tmp.append(e2)
@@ -321,7 +321,6 @@ def runEngine(request):  #####  #####
 
         l.append([lst[0][0].replace(lst[0][0].split('_')[0] + '_', ''), lst[0][1], lst[0][2].replace(lst[0][2].split('_')[0] + '_', '')])
         ntDraw(l)
-
 
         return HttpResponse(json.dumps(lst), content_type='application/json')
 
@@ -358,11 +357,48 @@ def objectReasoning(request):  #####  #####
                 l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
                           lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
                 json_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
-                          lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
+                               lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
         print("=======")
         print(len(l))
         print(l)
         ntDraw(l)
 
+        return HttpResponse(json.dumps(json_l), content_type='application/json')
+
+def relationReasoning(request):  #####  #####
+    global l_org, l, data, delSubject, delProperty, delObject
+    if request.method == 'POST':
+        relation = request.POST.get('relation')
+        threshold = request.POST.get('threshold')
+        threshold = float(threshold)
+        print(type(threshold),threshold)
+        runData = data[data['r'].str.contains(relation)].sort_values('score', ascending=False)
+        lst = []
+        json_l = []
+        for i in range(len(runData)):
+            tmp = []
+            score = runData.values[i][-1]
+            e1 = runData.values[i][0]
+            r = runData.values[i][1]
+            e2 = runData.values[i][2]
+            tmp.append(e1)
+            tmp.append(r)
+            tmp.append(e2)
+            tmp.append(score)
+            lst.append(tmp)
+
+        print('lstlen:',len(lst))
+        l = []
+        print('llen:',len(l))
+        for i in range(len(lst)):
+            if lst[i][3] > threshold:
+                l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
+                          lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
+                json_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
+                               lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
+        print("=======")
+        print(len(l))
+        print(l)
+        ntDraw(l)
 
         return HttpResponse(json.dumps(json_l), content_type='application/json')
