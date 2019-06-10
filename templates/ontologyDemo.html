@@ -158,8 +158,10 @@
     var delProperty = null;
     var del_target = null;
     var befor_len = 0;
+    var befor_nodeLen = 0;
     var c = 0;
-    var addList = new Array();
+    var targetP_addSourceList = new Array();
+    var targetP_targetList = new Array()
     var div = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
@@ -173,8 +175,8 @@
 
                 linkList = JSON.parse(JSON.stringify(linkList_org));
                 nodeList = JSON.parse(JSON.stringify(nodeList_org));
-                console.log(linkList.length);
-                console.log(linkList);
+                //console.log(nodeList.length);
+                //console.log(nodeList);
                 $('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 $('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 $('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
@@ -294,9 +296,7 @@
                         data: {object: targetE, threshold: $('#threshold').val()},
                         success: function (result) {
                             $('#stat').append("=== Reasoning Result :",result.length,"===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                            addList = [];
                             for(var i=0; i<result.length; i++){
-                                addList.push(result[i][0]);
                                 $('#stat').append("&#60;"+result[i][0]+", "+result[i][1]+", "+result[i][2]+"&#62; : "+result[i][3]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                             }
                             flag = 1;
@@ -326,14 +326,24 @@
                     .attr("r", 8)
                     .style("fill", '#000000')
                     .on("click", mouseOver(.3));
-                //.on("mouseout", mouseOut);
+                //.on("mouseout", mouseO  ut);
             }else {
                 node.style("stroke-opacity", 1);
-                node.style("fill-opacity", 1);
+                //node.style("fill-opacity", 1);
+                node.style("fill-opacity", function(d){
+                    if(targetP_targetList.length != 0){
+                        if((targetP_addSourceList.indexOf(d.name) != -1) || (targetP_targetList.indexOf(d.name) != -1)){
+                            return 1;
+                        }else{
+                            return 0.1;
+                        }
+                    }else{
+                        return 1;
+                    }
+                });
                 link.style("stroke-opacity", 1);
                 node.append("circle")
-                    .attr("r", 8)
-                    .data(addList).style("fill", '#1736cc');
+                    .attr("r", 8);
             }
 
             simulation
@@ -436,7 +446,19 @@
                     if(c == 1){
                         del_target.style("stroke", "#d05642").style("stroke-dasharray",1.5);
                     }else{
+                        var test=['eeeee','brandon_morrow','abc', 5];
+                        console.log(d.source['name'])
                         var source = d.source['name'].split(',').toString();
+                        console.log(source)
+                        if(d.source['name'] in test){
+                            console.log("good1")
+                        }
+                        if(source in test){
+                            console.log("good2")
+                        }
+                        if(5 in test){
+                            console.log("good3")
+                        }
                         var link = d.type;
                         var target = d.target['name'].split(',').toString();
 
@@ -594,8 +616,16 @@
             }
         });
     }
+    function runEngine_test(){
+        var ttt = ['test','brandon_mnorrow','test2']
+        if(ttt.indexOf('brandon_mnorroww') != -1){
+            console.log('find')
+        }else{
+            console.log("no")
+        }
+    }
+
     function runEngine(){
-        console.log(linkList)
         if(delProperty != null){
             $.ajax({
                 url: "/ontologyDemo/runEngine/",
@@ -624,7 +654,17 @@
                 type: 'POST',
                 data: {relation: targetP, threshold: $('#threshold').val() },
                 success: function (result) {
+                    targetP_addSourceList = [];
+                    targetP_targetList = [];
                     befor_len = linkList.length;
+                    befor_nodeLen = nodeList.length;
+                    for(var i=0; i<result.length; i++){
+                        targetP_addSourceList.push(result[i][0]);
+                        targetP_targetList.push(result[i][2]);
+                        targetP_targetList = Array.from(new Set(targetP_targetList)); //중복요소 제거
+                    }
+                    console.log(targetP_addSourceList);
+                    console.log(targetP_targetList);
                     $('#stat').append("=== "+targetP+"reasoning: "+result.length+" ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                     $('#stat').append("threshold: "+$('#threshold').val()).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                     flag = 1;
