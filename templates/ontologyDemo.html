@@ -94,6 +94,7 @@
                         </div>
                     </div>
                     <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
+                    <a onclick="test()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">test</a>
 
                 </div>
             </div>
@@ -637,14 +638,6 @@
             }
         });
     }
-    function runEngine_test(){
-        var ttt = ['test','brandon_mnorrow','test2']
-        if(ttt.indexOf('brandon_mnorroww') != -1){
-            console.log('find')
-        }else{
-            console.log("no")
-        }
-    }
 
     function runEngine(){
         if(delProperty != null){
@@ -693,6 +686,39 @@
                 }
             });
         }
+    }
+
+    function test(){
+        var tmp_linkList = JSON.parse(JSON.stringify(linkList));
+        var tmp_nodeList = JSON.parse(JSON.stringify(nodeList));
+        linkList = [];
+        nodeList = [];
+        console.log(linkList);
+        console.log(nodeList);
+        for(var i=0; i<tmp_linkList.length; i++){
+            for(var j=0; j<targetP_addSourceList.length; j++){
+                if(tmp_linkList[i]['source']['name'] == targetP_addSourceList[j]){
+                    linkList.push(tmp_linkList[i]);
+                }
+            }
+        }
+        for(var i=0; i<tmp_nodeList.length; i++){
+            for(var j=0; j<targetP_addSourceList.length; j++){
+                if(tmp_nodeList[i]['name'] == targetP_addSourceList[j]){
+                    nodeList.push(tmp_nodeList[i]);
+                }
+            }
+            for(var j=0; j<targetP_targetList.length; j++){
+                if(tmp_nodeList[i]['name'] == targetP_targetList[j]){
+                    nodeList.push(tmp_nodeList[i]);
+                }
+            }
+        }
+
+        console.log(linkList);
+        console.log(nodeList);
+        flag = 2;
+        dataSel()
     }
 </script>
 </html>
