@@ -69,9 +69,9 @@
 </head>
 
 <body>
-<div class="container-fluid" style="height: 920px; margin-top: 10px">
+<div class="container-fluid" style="height: 800px; margin-top: 10px">
     <div class="col-lg-12">
-        <div class="panel" style="height: 920px; border:1px solid #37474f">
+        <div class="panel" style="height: 800px; border:1px solid #37474f">
             <div class="panel-heading" style="text-align: center; background-color: #37474f;">
                 <div style="float: left;">
                     <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>
@@ -98,9 +98,9 @@
                 </div>
             </div>
 
-            <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 84.5%;">
-                <svg width="1860" height="830" style="{% comment %}border:1px solid red;{% endcomment %} ">
-                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -53%; margin-right: -18%; text-align: left; " id="stat"></div>
+            <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 100%;">
+                <svg width="1635" height="750">
+                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -45.8%; margin-right: 0.2%; text-align: left; " id="stat"></div>
                 </svg>
             </div>
         </div>
@@ -309,9 +309,27 @@
 
             node.append("text")
                 .attr("id", "textColor")
-                .attr("dy", 12)  // node label 위치
-                .attr("dx", -8)
-                .attr("font-size", 8) // node 글씨크기
+                .attr("dy", function(d){
+                    if((targetP_targetList.indexOf(d.name) != -1)){
+                        return 40;
+                    }else{
+                        return 12;
+                    }
+                })  // node label 위치
+                .attr("dx", function(d){
+                    if((targetP_targetList.indexOf(d.name) != -1)){
+                        return -40;
+                    }else{
+                        return -8;
+                    }
+                })
+                .attr("font-size", function(d){
+                    if((targetP_targetList.indexOf(d.name) != -1)){
+                        return 100;
+                    }else{
+                        return 8;
+                    }
+                }) // node 글씨크기
                 .text(function (d) {return d.name;});
 
             arrow = svg.selectAll(".arrow");
@@ -591,17 +609,20 @@
         targetP = $('#targetProperty').val();
         $.ajax({
             url: "/ontologyDemo/targetProperty/",
-            dataType: 'html',
+            dataType: 'json',
             type: 'POST',
             data: {targetProperty: $('#targetProperty').val()},
             success: function (result) {
-                if(result!="False"){
-                    $('#stat').append("targetProperty : "+$('#targetProperty').val()).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                    flag = 1;
-                    dataSel();
-                }else {
-                    console.log("no search list");
+                targetP_addSourceList = [];
+                targetP_targetList = [];
+                for(var i=0; i<result.length; i++){
+                    targetP_addSourceList.push(result[i][0]);
+                    targetP_targetList.push(result[i][2]);
+                    targetP_targetList = Array.from(new Set(targetP_targetList)); //중복요소 제거
                 }
+                $('#stat').append("targetProperty : "+$('#targetProperty').val()).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                flag = 1;
+                dataSel();
             }
         });
 

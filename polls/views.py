@@ -268,11 +268,6 @@ def targetProperty(request):  ##### targetProperty select #####
         del targetPropertyTriples[:]
         del targetPropertyTriplesRandom[:]
 
-        flag = False
-        #print("=========")
-        #print(len(l_org))
-        #print(l_org[10])
-
         for i in range(len(l_org)):
             if targetProperty == l_org[i][1]:
                 targetPropertyTriples.append(l_org[i])
@@ -281,7 +276,7 @@ def targetProperty(request):  ##### targetProperty select #####
         l = targetPropertyTriples
 
         ntDraw(l)
-        return HttpResponse(flag, content_type='text/html')
+        return HttpResponse(json.dumps(l), content_type='text/html')
 
 def delTriple(request):  ##### Triple Delete & reDraw #####
     global l_org, l, delSubject, delProperty, delObject
