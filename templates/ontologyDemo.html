@@ -78,12 +78,15 @@
                     <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
                 <div style="margin-left: 70%;">
+                <div style="float: top">
                     <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
                     <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="athleteplaysinleague">
                     <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
-                    <div class="w3-dropdown-hover">
-                        <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>
+                    <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
+                </div>
 
+                    <div class="w3-dropdown-hover" style="float: bottom">
+                        <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>
                         <div class="w3-dropdown-content w3-bar-block w3-border">
                             <a onclick="depth(0)" class="w3-bar-item w3-button">0</a>
                             <a onclick="depth(1)" class="w3-bar-item w3-button">1</a>
@@ -92,16 +95,15 @@
                             <a onclick="depth(4)" class="w3-bar-item w3-button">4</a>
                             <a onclick="depth(5)" class="w3-bar-item w3-button">5</a>
                         </div>
-                    </div>
-                    <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
-                    <a onclick="test()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">test</a>
 
+                    </div>
+                    <a onclick="inferredOnly()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Inferred Only</a>
                 </div>
             </div>
 
             <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 100%;">
                 <svg width="1635" height="750">
-                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -45.8%; margin-right: 0.2%; text-align: left; " id="stat"></div>
+                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -35.8%; margin-right: 0.2%; text-align: left; " id="stat"></div>
                 </svg>
             </div>
         </div>
@@ -687,8 +689,22 @@
             });
         }
     }
+    var test_c = 0;
+    function inferredOnly(){
+        test_c=test_c+1;
+        $.ajax({
+            url: "/ontologyDemo/inferredOnly/",
+            dataType: 'json',
+            type: 'POST',
+            data: {count: test_c},
+            success: function (result) {
+                flag = 1;
+                dataSel()
+            }
+        });
+    }
 
-    function test(){
+    function test_t(){
         var tmp_linkList = JSON.parse(JSON.stringify(linkList));
         var tmp_nodeList = JSON.parse(JSON.stringify(nodeList));
         linkList = [];

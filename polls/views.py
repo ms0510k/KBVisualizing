@@ -20,6 +20,7 @@ delObject = None
 targetPropertyTriples = []
 targetPropertyTriplesRandom = []
 targetProperty = None
+json_l = []
 #dataPath = 'polls/static/data/nell-995-simple.nt'
 #dataPath = 'polls/static/data/test_data.nt'
 #dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
@@ -361,7 +362,7 @@ def objectReasoning(request):  #####  #####
         return HttpResponse(json.dumps(json_l), content_type='application/json')
 
 def relationReasoning(request):  #####  #####
-    global l_org, l, data, delSubject, delProperty, delObject
+    global l_org, l, data, delSubject, delProperty, delObject, json_l
     if request.method == 'POST':
         relation = request.POST.get('relation')
         threshold = request.POST.get('threshold')
@@ -369,7 +370,7 @@ def relationReasoning(request):  #####  #####
         print(type(threshold),threshold)
         runData = data[data['r'].str.contains(relation)].sort_values('score', ascending=False)
         lst = []
-        json_l = []
+        result_l = []
         for i in range(len(runData)):
             tmp = []
             score = runData.values[i][-1]
@@ -391,10 +392,23 @@ def relationReasoning(request):  #####  #####
                 l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
                           lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
                 json_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
+                          lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
+                result_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
                                lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
         print("=======")
         print(len(l))
         print(l)
         ntDraw(l)
+
+        return HttpResponse(json.dumps(result_l), content_type='application/json')
+
+def inferredOnly(request):  #####  #####
+    global l_org, l, data, delSubject, delProperty, delObject, json_l
+    if request.method == 'POST':
+        count = request.POST.get('count')
+        if int(count)%2==0:
+            ntDraw(l)
+        else:
+            ntDraw(json_l)
 
         return HttpResponse(json.dumps(json_l), content_type='application/json')
