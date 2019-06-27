@@ -24,8 +24,9 @@ json_l = []
 #dataPath = 'polls/static/data/nell-995-simple.nt'
 #dataPath = 'polls/static/data/test_data.nt'
 #dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
-dataPath = 'polls/static/data/entryKB.nt'
-dataCount = 500
+#dataPath = 'polls/static/data/entryKB.nt'
+dataPath = 'polls/static/data/testMovieData457.nt'
+dataCount = 11000
 
 def ontologyDemo(request):
     global l_org, l, delObject, delProperty, delSubject, targetProperty, targetPropertyTriples, targetPropertyTriplesRandom

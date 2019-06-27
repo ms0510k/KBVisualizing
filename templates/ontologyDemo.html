@@ -103,7 +103,7 @@
 
             <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 100%;">
                 <svg width="1635" height="750">
-                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -35.8%; margin-right: 0.2%; text-align: left; " id="stat"></div>
+                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -45.8%; margin-right: 0.2%; text-align: left; " id="stat"></div>
                 </svg>
             </div>
         </div>
@@ -579,14 +579,28 @@
         });
     }
     function exp() {
-        $.ajax({
+        var httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = function() {
+            if (httpRequest.readyState == XMLHttpRequest.DONE && httpRequest.status == 200 ) {
+                // 텍스트 파일의 응답 처리는 responseText 프로퍼티를 사용해야 함.
+                var t1 = httpRequest.responseText;
+                // 텍스트 파일의 응답 처리에 responseXML 프로퍼티를 사용하면 null을 반환함.
+                //var t2 = httpRequest.responseXML;
+                alert(t1);
+                //alert(t2);
+            }
+        };
+        httpRequest.open("GET", "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_BTC&start=1405699200&end=9999999999&period=86400");
+        httpRequest.send();
+
+        {% comment %}$.ajax({
             url: "/ontologyDemo/exp/",
             dataType: 'html',
             type: 'POST',
             success: function (result) {
                 console.log(result);
             }
-        });
+        });{% endcomment %}
     }
     var prevC = 0;
     function depth(n) {
