@@ -328,7 +328,7 @@
                 })
                 .attr("font-size", function(d){
                     if((targetP_targetList.indexOf(d.name) != -1)){
-                        return 100;
+                        return 30;
                     }else{
                         return 8;
                     }
@@ -399,6 +399,9 @@
                     }else {return "white"}
                 });
 
+                link.append('text')
+
+
                 node.style("stroke-opacity", function(o) {
                     thisOpacity = isConnected(d, o) ? 1 : opacity;
                     //console.log("tttt"+thisOpacity);
@@ -413,8 +416,10 @@
                     return o.source === d || o.target === d ? 1 : opacity;
                 });
                 link.style("stroke", function(o){
-                    return o.source === d || o.target === d ? o.source.colour : "#ddd";
+                    return o.source === d || o.target === d ? o.source.color : "#ddd";
                 });
+                edgelabels = g.selectAll(".edgelabel")
+
             };
         }
 

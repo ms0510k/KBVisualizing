@@ -9,7 +9,8 @@ import json
 import os
 from DjangoTest.settings import BASE_DIR
 
-engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/model_answer.csv")
+#engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/model_answer.csv")
+engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/reasoning_output.csv")
 data = pd.read_csv(engineDataPath, names=['e1','r','e2','score'])
 
 l_org = []
@@ -21,12 +22,11 @@ targetPropertyTriples = []
 targetPropertyTriplesRandom = []
 targetProperty = None
 json_l = []
-#dataPath = 'polls/static/data/nell-995-simple.nt'
-#dataPath = 'polls/static/data/test_data.nt'
-#dataPath = 'polls/static/data/kb_athlete_sportsleague.nt'
+
 #dataPath = 'polls/static/data/entryKB.nt'
-dataPath = 'polls/static/data/testMovieData457.nt'
-dataCount = 11000
+#dataPath = 'polls/static/data/without_label_459.nt'
+dataPath = 'polls/static/data/without_label_228.nt'
+dataCount = 10008
 
 def ontologyDemo(request):
     global l_org, l, delObject, delProperty, delSubject, targetProperty, targetPropertyTriples, targetPropertyTriplesRandom
