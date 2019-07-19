@@ -80,7 +80,7 @@
                 <div style="margin-left: 70%;">
                 <div style="float: top">
                     <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
-                    <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="athleteplaysinleague">
+                    <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="coworker">
                     <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
                     <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
                 </div>
@@ -314,21 +314,21 @@
                 .attr("id", "textColor")
                 .attr("dy", function(d){
                     if((targetP_targetList.indexOf(d.name) != -1)){
-                        return 40;
+                        return 12;
                     }else{
                         return 12;
                     }
                 })  // node label 위치
                 .attr("dx", function(d){
                     if((targetP_targetList.indexOf(d.name) != -1)){
-                        return -40;
+                        return -8;
                     }else{
                         return -8;
                     }
                 })
                 .attr("font-size", function(d){
                     if((targetP_targetList.indexOf(d.name) != -1)){
-                        return 30;
+                        return 8;
                     }else{
                         return 8;
                     }
@@ -683,7 +683,7 @@
             });
             delProperty = null;
         }else{
-            $.ajax({
+            {% comment nell기준 %}$.ajax({
                 url: "/ontologyDemo/relationReasoning/",
                 dataType: 'json',
                 type: 'POST',
@@ -705,7 +705,20 @@
                     flag = 1;
                     dataSel()
                 }
+            });{% endcomment %}
+
+            $.ajax({
+                url: "/ontologyDemo/movieReasoning/",
+                dataType: 'json',
+                type: 'POST',
+                data: {relation: targetP, threshold: $('#threshold').val() },
+                success: function (result) {
+                    console.log(result)
+                    flag = 1;
+                    dataSel()
+                }
             });
+
         }
     }
     var test_c = 0;

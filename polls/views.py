@@ -25,7 +25,7 @@ json_l = []
 
 #dataPath = 'polls/static/data/entryKB.nt'
 #dataPath = 'polls/static/data/without_label_459.nt'
-dataPath = 'polls/static/data/without_label_228.nt'
+dataPath = 'polls/static/data/test.nt'
 dataCount = 10008
 
 def ontologyDemo(request):
@@ -321,7 +321,7 @@ def runEngine(request):  #####  #####
 
         return HttpResponse(json.dumps(lst), content_type='application/json')
 
-def objectReasoning(request):  #####  #####
+def objectReasoning(request):  ##### nell #####
     global l_org, l, data, delSubject, delProperty, delObject
     if request.method == 'POST':
         object = request.POST.get('object')
@@ -362,7 +362,7 @@ def objectReasoning(request):  #####  #####
 
         return HttpResponse(json.dumps(json_l), content_type='application/json')
 
-def relationReasoning(request):  #####  #####
+def relationReasoning(request):  ##### nell #####
     global l_org, l, data, delSubject, delProperty, delObject, json_l
     if request.method == 'POST':
         relation = request.POST.get('relation')
@@ -402,6 +402,43 @@ def relationReasoning(request):  #####  #####
         ntDraw(l)
 
         return HttpResponse(json.dumps(result_l), content_type='application/json')
+
+def movieReasoning(request):  ##### nell #####
+    global l_org, l, data, delSubject, delProperty, delObject, json_l
+    if request.method == 'POST':
+        relation = request.POST.get('relation')
+        threshold = request.POST.get('threshold')
+        threshold = float(threshold)
+        print(type(threshold),threshold)
+        runData = data[data['r'].str.contains(relation)].sort_values('score', ascending=False)
+        lst = runData.values.tolist()
+
+        def processing(tmp):
+            if len(tmp) == 3:
+                return [tmp[0].replace(tmp[0].split('_')[0] + '_', ''), tmp[1],
+                        tmp[2].replace(tmp[2].split('_')[0] + '_', '')]
+            else:
+                return [tmp[0].replace(tmp[0].split('_')[0] + '_', ''), tmp[1],
+                        tmp[2].replace(tmp[2].split('_')[0] + '_', ''), tmp[3]]
+
+        withScore = []
+        for i in range(len(l_org)):
+            for j in range(len(lst)):
+                if l_org[i][1] in lst[j][1]:
+                    if l_org[i][0] in lst[j][0]:
+                        if processing([lst[j][0], lst[j][1], lst[j][2]]) not in l:
+                            withScore.append(processing([lst[j][0], lst[j][1], lst[j][2], round(lst[j][3], 3)]))
+                            if lst[j][-1] >= threshold:
+                                l.append(processing([lst[j][0], lst[j][1], lst[j][2]]))
+        #             if l_org[i][2] in lst[j][0] or l_org[i][0] in lst[j][2]:
+        #                 if processing([lst[j][0],lst[j][1],lst[j][2]]) not in l:
+        #                     withScore.append(processing([lst[j][0], lst[j][1], lst[j][2], round(lst[j][3], 3)]))
+        #                     if lst[j][-1] >= threshold:
+        #                         l.append(processing([lst[j][0], lst[j][1], lst[j][2]]))
+
+        ntDraw(l)
+
+        return HttpResponse(json.dumps(withScore), content_type='application/json')
 
 def inferredOnly(request):  #####  #####
     global l_org, l, data, delSubject, delProperty, delObject, json_l

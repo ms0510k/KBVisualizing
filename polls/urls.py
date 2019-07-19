@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^ontologyDemo/objectReasoning/$', views.objectReasoning, name='objectReasoning'),
     url(r'^ontologyDemo/relationReasoning/$', views.relationReasoning, name='relationReasoning'),
     url(r'^ontologyDemo/inferredOnly/$', views.inferredOnly, name='inferredOnly'),
+    url(r'^ontologyDemo/movieReasoning/$', views.movieReasoning, name='movieReasoning'),
 ]
