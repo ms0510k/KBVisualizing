@@ -78,12 +78,12 @@
                     <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
                 <div style="margin-left: 70%;">
-                <div style="float: top">
-                    <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
-                    <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="coworker">
-                    <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
-                    <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
-                </div>
+                    <div style="float: top">
+                        <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
+                        <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="coworker">
+                        <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>
+                        <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
+                    </div>
 
                     <div class="w3-dropdown-hover" style="float: bottom">
                         <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>
@@ -237,6 +237,7 @@
                 .enter()
                 .append("path")
                 .attr("class", "link")
+                .attr("id", function (d) {return d.type})
                 .attr('marker-end','url(#arrowhead)');
 
             edgepaths = g.selectAll(".edgepath")
@@ -337,7 +338,27 @@
 
             arrow = svg.selectAll(".arrow");
 
-            if(targetP == null){
+
+            node.style("fill", "white");
+                node.style("stroke-opacity", 0.3);
+                node.style("fill-opacity", 0.3);
+                link.style("stroke-opacity", 0.7);
+                link.style("stroke", function(d){
+                    if(befor_len > 0){
+                        if(d.index < befor_len){
+                            return "#aaa"
+                        }else {
+                            return "#aa0914"
+                        }
+                    }else{
+                        return "#aaa"
+                    }
+                });
+                node.append("circle")
+                    .attr("r", 8)
+                    .style("fill", '#000000')
+                    .on("click", mouseOver(.3));
+            {% comment %}if(targetP == null){
                 node.style("fill", "white");
                 node.style("stroke-opacity", 0.3);
                 node.style("fill-opacity", 0.3);
@@ -365,7 +386,7 @@
                 link.style("stroke-opacity", 1);
                 node.append("circle")
                     .attr("r", 8);
-            }
+            }{% endcomment %}
 
             simulation
                 .nodes(nodes)
@@ -416,7 +437,7 @@
                     return o.source === d || o.target === d ? 1 : opacity;
                 });
                 link.style("stroke", function(o){
-                    return o.source === d || o.target === d ? o.source.color : "#ddd";
+                    return o.source === d || o.target === d ? o.source.color : "#aaa";
                 });
                 edgelabels = g.selectAll(".edgelabel")
 
@@ -427,7 +448,7 @@
             node.style("stroke-opacity", 0.3);
             node.style("fill-opacity", 0.3);
             link.style("stroke-opacity", 0.7);
-            link.style("stroke", "#ddd");
+            link.style("stroke", "#aaa");
         }
 
         function ticked() {
@@ -438,18 +459,31 @@
                 .attr("x2", function (d) {return d.target.x;})
                 .attr("y2", function (d) {return d.target.y;})
                 .attr("stroke", function (d) {
-                    if(d.type == targetP){
+                    if(befor_len > 0){
                         if(d.index < befor_len){
-                            return "#9a9a9a"
+                            return "#aaa"
                         }else {
-                            return "#cc120e"
+                            return "#aa0914"
                         }
-                        //.log("targetP")
-
                     }else{
-                        //console.log("targetN")
-                        return "#5d5d5d"
+                        return "#aaa"
                     }
+
+                    {% comment %}if(befor_len > 0){
+                        if(d.index < befor_len){
+                            if(d.type == targetP){
+                                return "#2e68cc"
+                            }else{
+                                return "#aaa"
+                            }
+                        }else {
+                            return "#aa0914"
+                        }
+                    }else if(d.type == targetP){
+                        return "#2e68cc"
+                    }else{
+                        return "#aaa"
+                    }{% endcomment %}
                 })
                 .attr("stroke-width", 2)
                 .on("mouseover", function(d) {
@@ -584,20 +618,6 @@
         });
     }
     function exp() {
-        var httpRequest = new XMLHttpRequest();
-        httpRequest.onreadystatechange = function() {
-            if (httpRequest.readyState == XMLHttpRequest.DONE && httpRequest.status == 200 ) {
-                // 텍스트 파일의 응답 처리는 responseText 프로퍼티를 사용해야 함.
-                var t1 = httpRequest.responseText;
-                // 텍스트 파일의 응답 처리에 responseXML 프로퍼티를 사용하면 null을 반환함.
-                //var t2 = httpRequest.responseXML;
-                alert(t1);
-                //alert(t2);
-            }
-        };
-        httpRequest.open("GET", "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_BTC&start=1405699200&end=9999999999&period=86400");
-        httpRequest.send();
-
         {% comment %}$.ajax({
             url: "/ontologyDemo/exp/",
             dataType: 'html',
@@ -627,7 +647,7 @@
             }
         });
     }
-    function targetProperty() {
+    {% comment nell 기준%}function targetProperty() {
         targetP = $('#targetProperty').val();
         $.ajax({
             url: "/ontologyDemo/targetProperty/",
@@ -658,9 +678,22 @@
                 $('#stat').append("# of Target Triples : "+prevC).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
             }
         });
+    }{% endcomment %}
+
+    function targetProperty(d) {
+        targetP = $('#targetProperty').val();
+        flag = 1;
+        dataSel();
+        {#link_org = g.selectAll('.link');#}
+        {#link_org.style("stroke", "#1736cc");#}
+        {#link = g.selectAll("#"+targetP);#}
+        {#console.log(link);#}
+        {#link.style("stroke", "#cc120e");#}
+
     }
 
     function runEngine(){
+        targetP = $('#targetProperty').val();
         if(delProperty != null){
             $.ajax({
                 url: "/ontologyDemo/runEngine/",
@@ -711,9 +744,9 @@
                 url: "/ontologyDemo/movieReasoning/",
                 dataType: 'json',
                 type: 'POST',
-                data: {relation: targetP, threshold: $('#threshold').val() },
+                data: {relation: $('#targetProperty').val(), threshold: $('#threshold').val() },
                 success: function (result) {
-                    console.log(result)
+                    befor_len = linkList.length;
                     flag = 1;
                     dataSel()
                 }

@@ -10,7 +10,7 @@ import os
 from DjangoTest.settings import BASE_DIR
 
 #engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/model_answer.csv")
-engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/reasoning_output.csv")
+engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/demo.csv")
 data = pd.read_csv(engineDataPath, names=['e1','r','e2','score'])
 
 l_org = []
@@ -25,7 +25,7 @@ json_l = []
 
 #dataPath = 'polls/static/data/entryKB.nt'
 #dataPath = 'polls/static/data/without_label_459.nt'
-dataPath = 'polls/static/data/test.nt'
+dataPath = 'polls/static/data/demo.nt'
 dataCount = 10008
 
 def ontologyDemo(request):
@@ -393,9 +393,9 @@ def relationReasoning(request):  ##### nell #####
                 l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
                           lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
                 json_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
-                          lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
+                               lst[i][2].replace(lst[i][2].split('_')[0] + '_', '')])
                 result_l.append([lst[i][0].replace(lst[i][0].split('_')[0] + '_', ''), lst[i][1].replace('concept:', ''),
-                               lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
+                                 lst[i][2].replace(lst[i][2].split('_')[0] + '_', ''), lst[i][3]])
         print("=======")
         print(len(l))
         print(l)
@@ -425,16 +425,16 @@ def movieReasoning(request):  ##### nell #####
         for i in range(len(l_org)):
             for j in range(len(lst)):
                 if l_org[i][1] in lst[j][1]:
-                    if l_org[i][0] in lst[j][0]:
+                    if l_org[i][0] in lst[j][0] or l_org[i][2] in lst[j][2]:
                         if processing([lst[j][0], lst[j][1], lst[j][2]]) not in l:
                             withScore.append(processing([lst[j][0], lst[j][1], lst[j][2], round(lst[j][3], 3)]))
                             if lst[j][-1] >= threshold:
                                 l.append(processing([lst[j][0], lst[j][1], lst[j][2]]))
-        #             if l_org[i][2] in lst[j][0] or l_org[i][0] in lst[j][2]:
-        #                 if processing([lst[j][0],lst[j][1],lst[j][2]]) not in l:
-        #                     withScore.append(processing([lst[j][0], lst[j][1], lst[j][2], round(lst[j][3], 3)]))
-        #                     if lst[j][-1] >= threshold:
-        #                         l.append(processing([lst[j][0], lst[j][1], lst[j][2]]))
+                    if l_org[i][2] in lst[j][0] or l_org[i][0] in lst[j][2]:
+                        if processing([lst[j][0],lst[j][1],lst[j][2]]) not in l:
+                            withScore.append(processing([lst[j][0], lst[j][1], lst[j][2], round(lst[j][3], 3)]))
+                            if lst[j][-1] >= threshold:
+                                l.append(processing([lst[j][0], lst[j][1], lst[j][2]]))
 
         ntDraw(l)
 
