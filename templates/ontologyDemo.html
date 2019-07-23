@@ -9,6 +9,7 @@
         .link {
             fill: none;
             stroke-width: 0.8px;
+            width: 5px;
         }
 
         input[type=text], select {
@@ -199,7 +200,7 @@
 
     var g = svg.append("g");
     var zoom = d3.zoom()
-        .scaleExtent([1 / 10, 30])
+        .scaleExtent([1 / 2, 30])
         .on("zoom", () => {
             g.attr("transform", d3.event.transform )
         });
@@ -222,8 +223,8 @@
 
 
     svg.call(zoom);
-    svg.call(zoom.transform, d3.zoomIdentity.translate(width/2, height/2).scale(0.1));
-    svg
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width/4, height/4).scale(0.5));
+    //svg
 
     function reset(){
         selN.style("fill-opacity", 0.3);
@@ -241,7 +242,11 @@
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("collide", d3.forceCollide().radius(12))
             .force("x", d3.forceX())
-            .force("y", d3.forceY());
+            .force("y", d3.forceY())
+            .stop();
+
+        for (var i = 0; i < 300; ++i) simulation.tick();
+        simulation.stop();
         update();
 
         function update() {
