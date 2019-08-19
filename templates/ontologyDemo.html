@@ -8,7 +8,7 @@
 
         .link {
             fill: none;
-            stroke-width: 0.8px;
+            {% comment %}stroke-width: 0.8px;{% endcomment %}
             width: 5px;
         }
 
@@ -73,12 +73,13 @@
 <div class="container-fluid" style="height: 800px; margin-top: 10px">
     <div class="col-lg-12">
         <div class="panel" style="height: 800px; border:1px solid #37474f">
-            <div class="panel-heading" style="text-align: center; background-color: #37474f;">
-                <div style="float: left;">
+            <div class="panel-heading" style="text-align: center; background-color: #37474f; display: flex;">
+                <div style="flex: 1;">
                     <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>
                     <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>
                 </div>
-                <div style="margin-left: 70%;">
+                <div style="flex: 2; text-align: center; color: white;" id="stat"></div>
+                <div style="flex: 1.5;">
                     <div style="float: top">
                         <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
                         <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="coworker">
@@ -103,8 +104,8 @@
             </div>
 
             <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 100%;">
-                <svg width="1635" height="750" onclick="reset();">
-                    <div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px;margin-top: -45.8%; margin-right: 0.2%; text-align: left; " id="stat"></div>
+                <svg width="1635" height="730" onclick="reset();">
+                    {% comment %}<div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px; margin-right: 0.2%; text-align: left; " id="stat"></div>{% endcomment %}
                 </svg>
             </div>
         </div>
@@ -173,7 +174,7 @@
         .attr("class", "tooltip")
         .style("opacity", 0);
     var nodeTooltip = d3.select("body").append("div")
-        .attr("class", "tooltip");
+        .attr("class", "tooltip").style("font-size", "20px");
     function dataSel() {
         g.selectAll("*").remove();    // svg 초기화
         if(flag==1){
@@ -186,9 +187,11 @@
                 nodeList = JSON.parse(JSON.stringify(nodeList_org));
                 //console.log(nodeList.length);
                 //console.log(nodeList);
-                $('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                //$('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                //$('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                //$('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
+                $('#stat').empty();
+                $('#stat').append("# of Triples : "+linkList.length);
                 draw(linkList, nodeList, 0);
             }).fail(function(data){
                 console.log("Fail to load\nError code: "+ data);
@@ -207,7 +210,7 @@
 
     flag = 0;
     svg.append('defs').append('marker')
-        .attrs({'id':'arrowhead',
+        .attrs({'id':'arrowhead1',
             'class':'arrow',
             'viewBox':'-0 -5 10 10',
             'refX':28,  // 화살표 위치
@@ -215,6 +218,21 @@
             'orient':'auto',
             'markerWidth':10,
             'markerHeight':5,
+            'xoverflow':'visible'})
+        .append('svg:path')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        .attr('fill', '#5d5d5d')
+        .style('stroke','none');
+
+    svg.append('defs').append('marker')
+        .attrs({'id':'arrowhead2',
+            'class':'arrow',
+            'viewBox':'-0 -5 10 10',
+            'refX':28,  // 화살표 위치
+            'refY':-1.9,
+            'orient':'auto',
+            'markerWidth':5,
+            'markerHeight':2,
             'xoverflow':'visible'})
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -257,7 +275,19 @@
                 .append("path")
                 .attr("class", "link")
                 .attr("id", function (d) {return d.type})
-                .attr('marker-end','url(#arrowhead)');
+                .attr('marker-end',function (d) {
+                    if(befor_len > 0){
+                        if(d.index < befor_len){
+                            return 'url(#arrowhead1)'
+                        }else {
+                            return 'url(#arrowhead2)'
+                        }
+                    }else{
+                        return 'url(#arrowhead1)'
+                    }
+
+                });
+            //.attr('marker-end','url(#arrowhead)');
 
             edgepaths = g.selectAll(".edgepath")
                 .data(links)
@@ -335,7 +365,7 @@
                     for(var i=0; i<reasoningOutput.length; i++){
                         var tmpString = null;
                         if((selN['_groups'][0][0]['id'] == reasoningOutput[i][0]) || (selN['_groups'][0][0]['id'] == reasoningOutput[i][2])){
-                            tmpString = reasoningOutput[i];
+                            tmpString = "&lt;"+reasoningOutput[i]+"&gt;";
                             if(tmpText == null){
                                 tmpText = tmpString;
                             }else{
@@ -537,7 +567,18 @@
                         return "#aaa"
                     }{% endcomment %}
                 })
-                .attr("stroke-width", 2)
+                .attr("stroke-width", function (d) {
+                    if(befor_len > 0){
+                        if(d.index < befor_len){
+                            return 0.8
+                        }else {
+                            return 2
+                        }
+                    }else{
+                        return 0.8
+                    }
+
+                })
                 .on("mouseover", function(d) {
                     div.transition()
                         .duration(200)
