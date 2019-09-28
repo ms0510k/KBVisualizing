@@ -8,7 +8,6 @@
 
         .link {
             fill: none;
-            {% comment %}stroke-width: 0.8px;{% endcomment %}
             width: 5px;
         }
 
@@ -76,36 +75,19 @@
             <div class="panel-heading" style="text-align: center; background-color: #37474f; display: flex;">
                 <div style="flex: 1;">
                     <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>
-{#                    <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>#}
                 </div>
                 <div style="flex: 2; text-align: center; color: white;" id="stat"></div>
                 <div style="flex: 1.5;">
                     <div style="float: top">
                         <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
                         <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="">
-{#                        <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>#}
                         <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
                     </div>
-
-                    <div class="w3-dropdown-hover" style="float: bottom">
-{#                        <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>#}
-                        <div class="w3-dropdown-content w3-bar-block w3-border">
-                            <a onclick="depth(0)" class="w3-bar-item w3-button">0</a>
-                            <a onclick="depth(1)" class="w3-bar-item w3-button">1</a>
-                            <a onclick="depth(2)" class="w3-bar-item w3-button">2</a>
-                            <a onclick="depth(3)" class="w3-bar-item w3-button">3</a>
-                            <a onclick="depth(4)" class="w3-bar-item w3-button">4</a>
-                            <a onclick="depth(5)" class="w3-bar-item w3-button">5</a>
-                        </div>
-
-                    </div>
-{#                    <a onclick="inferredOnly()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Inferred Only</a>#}
                 </div>
             </div>
 
             <div class="panel-body" id="svgArea" style=" text-align: center; margin-left: 0px; padding: 0px; float: left; width: 100%;">
                 <svg width="1635" height="730" onclick="reset();">
-                    {% comment %}<div style="border:1px solid #37474f; float: right; width: 25%; height: 500px; overflow:auto; padding: 10px; margin-right: 0.2%; text-align: left; " id="stat"></div>{% endcomment %}
                 </svg>
             </div>
         </div>
@@ -185,11 +167,6 @@
 
                 linkList = JSON.parse(JSON.stringify(linkList_org));
                 nodeList = JSON.parse(JSON.stringify(nodeList_org));
-                //console.log(nodeList.length);
-                //console.log(nodeList);
-                //$('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                //$('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                //$('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 $('#stat').empty();
                 $('#stat').append("# of Triples : "+linkList.length);
                 draw(linkList, nodeList, 0);
@@ -287,7 +264,6 @@
                     }
 
                 });
-            //.attr('marker-end','url(#arrowhead)');
 
             edgepaths = g.selectAll(".edgepath")
                 .data(links)
@@ -341,24 +317,6 @@
                 })
                 .on("contextmenu", function(d){
                     d3.event.preventDefault();
-                    {% comment %}targetE = d.name;
-                    $.ajax({
-                        url: "/ontologyDemo/objectReasoning/",
-                        dataType: 'json',
-                        type: 'POST',
-                        data: {object: targetE, threshold: $('#threshold').val()},
-                        success: function (result) {
-                            $('#stat').append("=== Reasoning Result :",result.length,"===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                            for(var i=0; i<result.length; i++){
-                                $('#stat').append("&#60;"+result[i][0]+", "+result[i][1]+", "+result[i][2]+"&#62; : "+result[i][3]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                            }
-                            flag = 1;
-                            dataSel();
-                        }
-                    });
-                    $('#threshold').val('');{% endcomment %}
-
-
 
                     selN = d3.select(this);
                     var tmpText = null;
@@ -432,35 +390,6 @@
                     .attr("r", 8)
                     .style("fill", '#000000')
                     .on("click", mouseOver(.3));
-            {% comment %}if(targetP == null){
-                node.style("fill", "white");
-                node.style("stroke-opacity", 0.3);
-                node.style("fill-opacity", 0.3);
-                link.style("stroke-opacity", 0.7);
-                link.style("stroke", "#333333");
-                node.append("circle")
-                    .attr("r", 8)
-                    .style("fill", '#000000')
-                    .on("click", mouseOver(.3));
-                //.on("mouseout", mouseO  ut);
-            }else {
-                node.style("stroke-opacity", 1);
-                //node.style("fill-opacity", 1);
-                node.style("fill-opacity", function(d){
-                    if(targetP_targetList.length != 0){
-                        if((targetP_addSourceList.indexOf(d.name) != -1) || (targetP_targetList.indexOf(d.name) != -1)){
-                            return 1;
-                        }else{
-                            return 0.1;
-                        }
-                    }else{
-                        return 1;
-                    }
-                });
-                link.style("stroke-opacity", 1);
-                node.append("circle")
-                    .attr("r", 8);
-            }{% endcomment %}
 
             simulation
                 .nodes(nodes)
@@ -509,16 +438,12 @@
                     link.style("stroke-opacity", function(o) {
                         return o.source === d || o.target === d ? 1 : opacity;
                     });
-                    {% comment %}link.style("stroke", function(o){
-                        return o.source === d || o.target === d ? o.source.color : "#aaa";
-                    });{% endcomment %}
                     edgelabels = g.selectAll(".edgelabel")
                 }else{
                     node.style("fill", "white");
                     node.style("stroke-opacity", 0.3);
                     node.style("fill-opacity", 0.3);
                     link.style("stroke-opacity", 0.7);
-                    //link.style("stroke", "#aaa");
                 }
                 console.log('test'+clickCnt);
 
@@ -550,22 +475,6 @@
                     }else{
                         return "#aaa"
                     }
-
-                    {% comment %}if(befor_len > 0){
-                        if(d.index < befor_len){
-                            if(d.type == targetP){
-                                return "#2e68cc"
-                            }else{
-                                return "#aaa"
-                            }
-                        }else {
-                            return "#aa0914"
-                        }
-                    }else if(d.type == targetP){
-                        return "#2e68cc"
-                    }else{
-                        return "#aaa"
-                    }{% endcomment %}
                 })
                 .attr("stroke-width", function (d) {
                     if(befor_len > 0){
@@ -628,14 +537,11 @@
                                     $('#stat').append("subject : "+source).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                                     $('#stat').append("property : "+link).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                                     $('#stat').append("object : "+target).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
-                                    //flag = 1;
-                                    //dataSel();
                                 }else {
                                     console.log("no search list");
                                 }
                             }
                         });
-                        //c = 0;
                     }
                 });
 
@@ -710,80 +616,6 @@
             }
         });
     }
-    function exp() {
-        {% comment %}$.ajax({
-            url: "/ontologyDemo/exp/",
-            dataType: 'html',
-            type: 'POST',
-            success: function (result) {
-                console.log(result);
-            }
-        });{% endcomment %}
-    }
-    var prevC = 0;
-    function depth(n) {
-        $.ajax({
-            url: "/ontologyDemo/depth/",
-            dataType: 'json',
-            type: 'POST',
-            data: {n : n},
-            success: function (result) {
-                $('#stat').append("----------------------------").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').append("Depth "+result[0]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').append("# of Added Triples : "+ ((Number(result[1]) - prevC))).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').append("# of Total Triples : "+result[1]).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').append("----------------------------").append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
-                //alert(result);
-                prevC = Number(result[1]);
-                flag = 1;
-                dataSel();
-            }
-        });
-    }
-    {% comment nell 기준%}function targetProperty() {
-        targetP = $('#targetProperty').val();
-        $.ajax({
-            url: "/ontologyDemo/targetProperty/",
-            dataType: 'json',
-            type: 'POST',
-            data: {targetProperty: $('#targetProperty').val()},
-            success: function (result) {
-                targetP_addSourceList = [];
-                targetP_targetList = [];
-                for(var i=0; i<result.length; i++){
-                    targetP_addSourceList.push(result[i][0]);
-                    targetP_targetList.push(result[i][2]);
-                    targetP_targetList = Array.from(new Set(targetP_targetList)); //중복요소 제거
-                }
-                $('#stat').append("targetProperty : "+$('#targetProperty').val()).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                flag = 1;
-                dataSel();
-            }
-        });
-
-        $.ajax({
-            url: "/ontologyDemo/depth/",
-            dataType: 'json',
-            type: 'POST',
-            data: {n : 0},
-            success: function (result) {
-                prevC = Number(result[1]);
-                $('#stat').append("# of Target Triples : "+prevC).append("<br><br>").scrollTop($("#stat")[0].scrollHeight);
-            }
-        });
-    }{% endcomment %}
-
-    function targetProperty(d) {
-        targetP = $('#targetProperty').val();
-        flag = 1;
-        dataSel();
-        {#link_org = g.selectAll('.link');#}
-        {#link_org.style("stroke", "#1736cc");#}
-        {#link = g.selectAll("#"+targetP);#}
-        {#console.log(link);#}
-        {#link.style("stroke", "#cc120e");#}
-
-    }
 
     function runEngine(){
         targetP = $('#targetProperty').val();
@@ -803,38 +635,10 @@
                         c = 0;
                         del_target.style("stroke", "#2f5baf").style("stroke-dasharray",5);
                     }
-                    //flag = 1;
-                    //dataSel()
                 }
             });
             delProperty = null;
         }else{
-            {% comment nell기준 %}$.ajax({
-                url: "/ontologyDemo/relationReasoning/",
-                dataType: 'json',
-                type: 'POST',
-                data: {relation: targetP, threshold: $('#threshold').val() },
-                success: function (result) {
-                    targetP_addSourceList = [];
-                    targetP_targetList = [];
-                    befor_len = linkList.length;
-                    befor_nodeLen = nodeList.length;
-                    for(var i=0; i<result.length; i++){
-                        targetP_addSourceList.push(result[i][0]);
-                        targetP_targetList.push(result[i][2]);
-                        targetP_targetList = Array.from(new Set(targetP_targetList)); //중복요소 제거
-                    }
-                    console.log(targetP_addSourceList);
-                    console.log(targetP_targetList);
-                    $('#stat').append("=== "+targetP+"reasoning: "+result.length+" ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                    $('#stat').append("threshold: "+$('#threshold').val()).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                    flag = 1;
-                    dataSel()
-                }
-            });{% endcomment %}
-
-
-
             $.ajax({
                 url: "/ontologyDemo/movieReasoning/",
                 dataType: 'json',
@@ -849,53 +653,6 @@
             });
 
         }
-    }
-    var test_c = 0;
-    function inferredOnly(){
-        test_c=test_c+1;
-        $.ajax({
-            url: "/ontologyDemo/inferredOnly/",
-            dataType: 'json',
-            type: 'POST',
-            data: {count: test_c},
-            success: function (result) {
-                flag = 1;
-                dataSel()
-            }
-        });
-    }
-
-    function test_t(){
-        var tmp_linkList = JSON.parse(JSON.stringify(linkList));
-        var tmp_nodeList = JSON.parse(JSON.stringify(nodeList));
-        linkList = [];
-        nodeList = [];
-        console.log(linkList);
-        console.log(nodeList);
-        for(var i=0; i<tmp_linkList.length; i++){
-            for(var j=0; j<targetP_addSourceList.length; j++){
-                if(tmp_linkList[i]['source']['name'] == targetP_addSourceList[j]){
-                    linkList.push(tmp_linkList[i]);
-                }
-            }
-        }
-        for(var i=0; i<tmp_nodeList.length; i++){
-            for(var j=0; j<targetP_addSourceList.length; j++){
-                if(tmp_nodeList[i]['name'] == targetP_addSourceList[j]){
-                    nodeList.push(tmp_nodeList[i]);
-                }
-            }
-            for(var j=0; j<targetP_targetList.length; j++){
-                if(tmp_nodeList[i]['name'] == targetP_targetList[j]){
-                    nodeList.push(tmp_nodeList[i]);
-                }
-            }
-        }
-
-        console.log(linkList);
-        console.log(nodeList);
-        flag = 2;
-        dataSel()
     }
 </script>
 </html>
