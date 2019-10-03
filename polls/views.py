@@ -428,9 +428,8 @@ def Reasoning(request):  ##### nell #####
         for i in range(len(reasoningData_lst)):
             if [reasoningData_lst[i][0], reasoningData_lst[i][1], reasoningData_lst[i][2]] not in l:
                 l.append([reasoningData_lst[i][0], reasoningData_lst[i][1], reasoningData_lst[i][2]])
-                withScore.append([reasoningData_lst2[i][0], reasoningData_lst2[i][1], reasoningData_lst2[i][2], round(reasoningData_lst2[i][3], 3)])
         ntDraw(l)
-        return HttpResponse(json.dumps(withScore), content_type='application/json')
+        return HttpResponse(json.dumps(reasoningData_lst2), content_type='application/json')
 
 def movieReasoning_org(request):  ##### nell #####
     global l_org, l, data, delSubject, delProperty, delObject, json_l
