@@ -10,7 +10,9 @@ import os
 from DjangoTest.settings import BASE_DIR
 
 #engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/model_answer.csv")
-engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/demo.csv")
+#engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/demo.csv")
+engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/wiseKB.csv")
+
 data = pd.read_csv(engineDataPath, names=['e1','r','e2','score'])
 
 l_org = []
@@ -25,8 +27,8 @@ json_l = []
 
 #dataPath = 'polls/static/data/entryKB.nt'
 #dataPath = 'polls/static/data/without_label_459.nt'
-dataPath = 'polls/static/data/demo.nt'
-#dataPath = 'polls/static/data/wiseKB_sample.nt'
+#dataPath = 'polls/static/data/demo.nt'
+dataPath = 'polls/static/data/display.nt'
 dataCount = 5000
 
 def ontologyDemo(request):
@@ -412,6 +414,32 @@ def movieReasoning(request):  ##### nell #####
         threshold = float(threshold)
         print(type(threshold),threshold)
         runData = data[data['r'].str.contains(relation)].sort_values('score', ascending=False)
+
+        l_df = pd.DataFrame(l)
+        l_df.columns = ['e1', 'r', 'e2']
+        e1_lst = l_df.e1.values.tolist()
+        e2_lst = l_df.e2.values.tolist()
+        e = e1_lst + e2_lst
+        e = list(set(e))
+        reasoningData = runData[(runData.e1.isin(e)) & (runData.score >= threshold)]
+        reasoningData_lst = reasoningData.values.tolist()
+        reasoningData_lst2 = runData[runData.e1.isin(e)].values.tolist()
+        withScore = []
+        for i in range(len(reasoningData_lst)):
+            if [reasoningData_lst[i][0], reasoningData_lst[i][1], reasoningData_lst[i][2]] not in l:
+                l.append([reasoningData_lst[i][0], reasoningData_lst[i][1], reasoningData_lst[i][2]])
+                withScore.append([reasoningData_lst2[i][0], reasoningData_lst2[i][1], reasoningData_lst2[i][2], round(reasoningData_lst2[i][3], 3)])
+        ntDraw(l)
+        return HttpResponse(json.dumps(withScore), content_type='application/json')
+
+def movieReasoning_org(request):  ##### nell #####
+    global l_org, l, data, delSubject, delProperty, delObject, json_l
+    if request.method == 'POST':
+        relation = request.POST.get('relation')
+        threshold = request.POST.get('threshold')
+        threshold = float(threshold)
+        print(type(threshold),threshold)
+        runData = data[data['r'].str.contains(relation)].sort_values('score', ascending=False)
         lst = runData.values.tolist()
 
         def processing(tmp):
@@ -421,7 +449,7 @@ def movieReasoning(request):  ##### nell #####
             else:
                 return [tmp[0].replace(tmp[0].split('_')[0] + '_', ''), tmp[1],
                         tmp[2].replace(tmp[2].split('_')[0] + '_', ''), tmp[3]]
-
+        print('test1')
         withScore = []
         for i in range(len(l_org)):
             for j in range(len(lst)):
@@ -436,9 +464,9 @@ def movieReasoning(request):  ##### nell #####
                             withScore.append(processing([lst[j][0], lst[j][1], lst[j][2], round(lst[j][3], 3)]))
                             if lst[j][-1] >= threshold:
                                 l.append(processing([lst[j][0], lst[j][1], lst[j][2]]))
-
+        print('test2')
         ntDraw(l)
-
+        print('test3')
         return HttpResponse(json.dumps(withScore), content_type='application/json')
 
 def inferredOnly(request):  #####  #####
