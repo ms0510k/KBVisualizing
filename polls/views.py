@@ -406,7 +406,7 @@ def relationReasoning(request):  ##### nell #####
 
         return HttpResponse(json.dumps(result_l), content_type='application/json')
 
-def movieReasoning(request):  ##### nell #####
+def Reasoning(request):  ##### nell #####
     global l_org, l, data, delSubject, delProperty, delObject, json_l
     if request.method == 'POST':
         relation = request.POST.get('relation')
