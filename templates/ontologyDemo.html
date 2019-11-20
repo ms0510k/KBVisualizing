@@ -78,8 +78,8 @@
                     {#                    <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>#}
                     <select class="w3-select" style="width: 140px; text-align-last:center;" onchange="KB(this.value)">
                         <option value="-">- Select KB -</option>
-                        <option value="nation">KB For nationality</option>
-                        <option value="emp">KB For employer</option>
+                        <option value="nationality">KB For nationality</option>
+                        <option value="employer">KB For employer</option>
                         <option value="job">KB For job</option>
                     </select>
 {#                    <a id="voice" onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Voice</a>#}
@@ -502,11 +502,12 @@
             return function(d) {
                 clickCnt = clickCnt+1;
                 if(clickCnt%2==0){
+                    window.open('https://ko.wikipedia.org/wiki/'+d3.select(this)['_groups'][0][0]['__data__']['name'], '_blank', 'width=800px,height=500px,toolbars=no,scrollbars=no');
                     $.ajax({
                         url: "/ontologyDemo/stt/",
                         dataType: 'html',
                         type: 'POST',
-                        data:{name : d3.select(this)['_groups'][0][0]['__data__']['name']},
+                        data:{name : d3.select(this)['_groups'][0][0]['__data__']['name'], rel : targetP},
                         success: function (result) {
                             //alert("good!");
                             //$("#voice").css("color","white");
@@ -928,6 +929,9 @@
         dataSel()
     }
     function KB(kb){
+        targetP = kb;
+        $("#targetProperty").val(targetP);
+        $("#threshold").val('0.9');
         $.ajax({
             url: "/ontologyDemo/graph/",
             dataType: 'html',

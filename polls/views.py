@@ -124,11 +124,11 @@ def graph(request):  ##### graph #####
         content = True
 
         if content:
-            if kb == 'nation':
+            if kb == 'nationality':
                 dataPath = 'polls/static/data/display_nation.nt'
             elif kb == 'job':
                 dataPath = 'polls/static/data/display_job.nt'
-            elif kb == 'emp':
+            elif kb == 'employer':
                 dataPath = 'polls/static/data/display_emp.nt'
             filePath = os.path.join(BASE_DIR, dataPath)
             print(filePath)
@@ -505,41 +505,28 @@ def listen():
 def speak(x):
     os.system('say '+str(x))
 
-def processing(t):
-    # subject = t.split(' ')[0]
-    # detach_lst = ['의','는','은']
-    # for x in detach_lst:
-    #     subject = subject.replace(x, '')
-    print('인식한 이름: ',t)
-
-    nation_lst = ['국적', '나라']
-    job_lst = ['직업']
-    try:
-        for n in nation_lst:
-            if n in t:
-                subjectDf = data[data.e1.str.contains(t) & data.r.str.contains('nationality')]
-                df = subjectDf[subjectDf.score == subjectDf.score.max()]
-                return(df.e1.values[0]+'의 국적은 '+df.e2.values[0]+' 입니다.')
-                #speak(df.e1.values[0]+'의 국적은 '+df.e2.values[0]+' 입니다.')
-        for n in job_lst:
-            if n in t:
-                subjectDf = data[data.e1.str.contains(t) & data.r.str.contains('job')]
-                df = subjectDf[subjectDf.score == subjectDf.score.max()]
-                return(df.e1.values[0]+'의 직업은 '+df.e2.values[0]+' 입니다.')
-                #speak(df.e1.values[0]+'의 직업은 '+df.e2.values[0]+' 입니다.')
-    except:
-        return('죄송합니다. 해당 정보를 찾을 수 없습니다.')
-        #speak('죄송합니다. 해당 정보를 찾을 수 없습니다.')
+def processing(t, rel):
+    subjectDf = data[data.e1.str.contains(t) & data.r.str.contains(rel)]
+    df = subjectDf[subjectDf.score == subjectDf.score.max()]
+    if rel == 'nationality':
+        text = df.e1.values[0] + '의 국적은 ' + df.e2.values[0] + ' 입니다.'
+    elif rel == 'employer':
+        text = df.e1.values[0] + '의 소속 팀은 ' + df.e2.values[0] + ' 입니다.'
+    elif rel == 'job':
+        text = df.e1.values[0] + '의 직업은 ' + df.e2.values[0] + ' 입니다.'
+    return text
 
 def stt(request):  #####  #####
     global  data
     if request.method == 'POST':
         name = request.POST.get('name')
+        rel = request.POST.get('rel')
         print('aaaaaaaaaa')
         #text = listen()
         #print('1')
-        text = processing(name)
+        text = processing(name, rel)
         #print('2')
         print(text)
+        print(rel)
         speak(text)
         return HttpResponse(json.dumps([str(text)]), content_type='application/json')
