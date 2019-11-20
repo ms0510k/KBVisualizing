@@ -8,7 +8,7 @@
 
         .link {
             fill: none;
-            {% comment %}stroke-width: 0.8px;{% endcomment %}
+        {% comment %}stroke-width: 0.8px;{% endcomment %}
             width: 5px;
         }
 
@@ -75,20 +75,26 @@
         <div class="panel" style="height: 800px; border:1px solid #37474f">
             <div class="panel-heading" style="text-align: center; background-color: #37474f; display: flex;">
                 <div style="flex: 1;">
-                    <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>
-{#                    <a onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Export</a>#}
+                    {#                    <a onclick="drawGraph()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">FileLoad</a>#}
+                    <select class="w3-select" style="width: 140px; text-align-last:center;" onchange="KB(this.value)">
+                        <option value="-">- Select KB -</option>
+                        <option value="nation">KB For nationality</option>
+                        <option value="emp">KB For employer</option>
+                        <option value="job">KB For job</option>
+                    </select>
+{#                    <a id="voice" onclick="exp()" style=" margin-left:20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Voice</a>#}
                 </div>
                 <div style="flex: 2; text-align: center; color: white;" id="stat"></div>
                 <div style="flex: 1.5;">
                     <div style="float: top">
                         <input type="text" id="threshold" style="width: 70px;" placeholder="threshold">
                         <input type="text" id="targetProperty" style="width: 150px;" placeholder="targetProperty" value="">
-{#                        <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>#}
+                        {#                        <a onclick="targetProperty()" style="cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Search</a>#}
                         <a onclick="runEngine()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Reasoning</a>
                     </div>
 
                     <div class="w3-dropdown-hover" style="float: bottom">
-{#                        <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>#}
+                        {#                        <a style="margin-left: 20px;cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Depth</a>#}
                         <div class="w3-dropdown-content w3-bar-block w3-border">
                             <a onclick="depth(0)" class="w3-bar-item w3-button">0</a>
                             <a onclick="depth(1)" class="w3-bar-item w3-button">1</a>
@@ -99,7 +105,7 @@
                         </div>
 
                     </div>
-{#                    <a onclick="inferredOnly()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Inferred Only</a>#}
+                    {#                    <a onclick="inferredOnly()" style="margin-left: 20px; cursor: pointer; color: white;" onmouseover="this.style.fontWeight='bold'" onmouseout="this.style.fontWeight=''">Inferred Only</a>#}
                 </div>
             </div>
 
@@ -175,6 +181,7 @@
         .style("opacity", 0);
     var nodeTooltip = d3.select("body").append("div")
         .attr("class", "tooltip").style("font-size", "20px");
+    var triples = 0;
     function dataSel() {
         g.selectAll("*").remove();    // svg 초기화
         if(flag==1){
@@ -190,8 +197,16 @@
                 //$('#stat').append("=== KG Information ===").append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 //$('#stat').append("# of Triples : "+linkList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
                 //$('#stat').append("# of Entities : "+nodeList.length).append("<br>").scrollTop($("#stat")[0].scrollHeight);
-                $('#stat').empty();
-                $('#stat').append("# of Triples : "+linkList.length);
+                if(triples==0){
+                    $('#stat').empty();
+                    $('#stat').append("# of Triples : "+linkList.length);
+                    triples = linkList.length;
+                }else{
+                    $('#stat').empty();
+                    $('#stat').append("# of Triples : "+linkList.length).append("<br>");
+                    $('#stat').append("# of Inferred : "+(linkList.length - triples));
+                }
+
                 draw(linkList, nodeList, 0);
             }).fail(function(data){
                 console.log("Fail to load\nError code: "+ data);
@@ -241,15 +256,15 @@
 
 
     svg.call(zoom);
-    svg.call(zoom.transform, d3.zoomIdentity.translate(width/4, height/4).scale(0.5));
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width/4, height/4).scale(1));
     //svg
 
     function reset(){
         selN.style("fill-opacity", 0.3);
         selN.style("fill","white");
         nodeTooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
+            .duration(500)
+            .style("opacity", 0);
     }
 
     function draw(links, nodes){    // svg에 link와 node 그리기
@@ -414,24 +429,24 @@
 
 
             node.style("fill", "white");
-                node.style("stroke-opacity", 0.3);
-                node.style("fill-opacity", 0.3);
-                link.style("stroke-opacity", 0.7);
-                link.style("stroke", function(d){
-                    if(befor_len > 0){
-                        if(d.index < befor_len){
-                            return "#aaa"
-                        }else {
-                            return "#aa0914"
-                        }
-                    }else{
+            node.style("stroke-opacity", 0.3);
+            node.style("fill-opacity", 0.3);
+            link.style("stroke-opacity", 0.7);
+            link.style("stroke", function(d){
+                if(befor_len > 0){
+                    if(d.index < befor_len){
                         return "#aaa"
+                    }else {
+                        return "#aa0914"
                     }
-                });
-                node.append("circle")
-                    .attr("r", 8)
-                    .style("fill", '#000000')
-                    .on("click", mouseOver(.3));
+                }else{
+                    return "#aaa"
+                }
+            });
+            node.append("circle")
+                .attr("r", 8)
+                .style("fill", '#000000')
+                .on("click", mouseOver(.3));
             {% comment %}if(targetP == null){
                 node.style("fill", "white");
                 node.style("stroke-opacity", 0.3);
@@ -483,9 +498,21 @@
 
         // fade nodes on hover
         function mouseOver(opacity) {
+
             return function(d) {
                 clickCnt = clickCnt+1;
                 if(clickCnt%2==0){
+                    $.ajax({
+                        url: "/ontologyDemo/stt/",
+                        dataType: 'html',
+                        type: 'POST',
+                        data:{name : d3.select(this)['_groups'][0][0]['__data__']['name']},
+                        success: function (result) {
+                            //alert("good!");
+                            //$("#voice").css("color","white");
+                            console.log(result);
+                        }
+                    });
                     // check all other nodes to see if they're connected
                     // to this one. if so, keep the opacity at 1, otherwise
                     // fade
@@ -711,14 +738,17 @@
         });
     }
     function exp() {
-        {% comment %}$.ajax({
-            url: "/ontologyDemo/exp/",
+        $("#voice").css("color","red");
+        $.ajax({
+            url: "/ontologyDemo/stt/",
             dataType: 'html',
             type: 'POST',
             success: function (result) {
+                alert("good!");
+                $("#voice").css("color","white");
                 console.log(result);
             }
-        });{% endcomment %}
+        });
     }
     var prevC = 0;
     function depth(n) {
@@ -896,6 +926,23 @@
         console.log(nodeList);
         flag = 2;
         dataSel()
+    }
+    function KB(kb){
+        $.ajax({
+            url: "/ontologyDemo/graph/",
+            dataType: 'html',
+            type: 'POST',
+            data: {KB: kb },
+            success: function (result) {
+                if(result!="False"){
+                    console.log("success");
+                    flag = 1;
+                    dataSel();
+                }else {
+                    console.log("Select File!");
+                }
+            }
+        });
     }
 </script>
 </html>

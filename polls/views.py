@@ -8,10 +8,11 @@ import pandas as pd
 import json
 import os
 from DjangoTest.settings import BASE_DIR
+import speech_recognition as sr
 
 #engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/model_answer.csv")
 #engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/demo.csv")
-engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/wiseKB.csv")
+engineDataPath = os.path.join(BASE_DIR, "polls/static/engineData/wiseKB_answer.csv")
 
 data = pd.read_csv(engineDataPath, names=['e1','r','e2','score'])
 
@@ -25,10 +26,8 @@ targetPropertyTriplesRandom = []
 targetProperty = None
 json_l = []
 
-#dataPath = 'polls/static/data/entryKB.nt'
-#dataPath = 'polls/static/data/without_label_459.nt'
-#dataPath = 'polls/static/data/demo.nt'
-dataPath = 'polls/static/data/display.nt'
+#dataPath = 'polls/static/data/display_.nt'
+dataPath = 'polls/static/data/display_.nt'
 dataCount = 5000
 
 def ontologyDemo(request):
@@ -121,10 +120,18 @@ def ntDraw(data_l):
 def graph(request):  ##### graph #####
     global l_org, l
     if request.method == 'POST':
+        kb = request.POST.get('KB')
         content = True
 
         if content:
+            if kb == 'nation':
+                dataPath = 'polls/static/data/display_nation.nt'
+            elif kb == 'job':
+                dataPath = 'polls/static/data/display_job.nt'
+            elif kb == 'emp':
+                dataPath = 'polls/static/data/display_emp.nt'
             filePath = os.path.join(BASE_DIR, dataPath)
+            print(filePath)
             if '.nt' in filePath:
                 input_file = open(filePath, 'r')
                 readData(input_file)
@@ -305,7 +312,7 @@ def runEngine(request):  #####  #####
     if request.method == 'POST':
         runData = data[data['e1'].str.contains(delSubject) & data['e2'].str.contains(delObject)].sort_values('score', ascending=False)
         #print("=========")
-        #print(runData)
+        print(runData)
         lst = []
         for i in range(len(runData)):
             tmp = []
@@ -478,3 +485,61 @@ def inferredOnly(request):  #####  #####
             ntDraw(json_l)
 
         return HttpResponse(json.dumps(json_l), content_type='application/json')
+
+
+
+def listen():
+    print('11')
+    r = sr.Recognizer()
+    print('22')
+    mic = sr.Microphone()
+    print('33')
+    with mic as source:
+        print('44')
+        audio = r.listen(source)
+    print('55')
+    text = r.recognize_google(audio, language = 'ko-KR')
+    print('인식한 문장: ',text)
+    return text
+
+def speak(x):
+    os.system('say '+str(x))
+
+def processing(t):
+    # subject = t.split(' ')[0]
+    # detach_lst = ['의','는','은']
+    # for x in detach_lst:
+    #     subject = subject.replace(x, '')
+    print('인식한 이름: ',t)
+
+    nation_lst = ['국적', '나라']
+    job_lst = ['직업']
+    try:
+        for n in nation_lst:
+            if n in t:
+                subjectDf = data[data.e1.str.contains(t) & data.r.str.contains('nationality')]
+                df = subjectDf[subjectDf.score == subjectDf.score.max()]
+                return(df.e1.values[0]+'의 국적은 '+df.e2.values[0]+' 입니다.')
+                #speak(df.e1.values[0]+'의 국적은 '+df.e2.values[0]+' 입니다.')
+        for n in job_lst:
+            if n in t:
+                subjectDf = data[data.e1.str.contains(t) & data.r.str.contains('job')]
+                df = subjectDf[subjectDf.score == subjectDf.score.max()]
+                return(df.e1.values[0]+'의 직업은 '+df.e2.values[0]+' 입니다.')
+                #speak(df.e1.values[0]+'의 직업은 '+df.e2.values[0]+' 입니다.')
+    except:
+        return('죄송합니다. 해당 정보를 찾을 수 없습니다.')
+        #speak('죄송합니다. 해당 정보를 찾을 수 없습니다.')
+
+def stt(request):  #####  #####
+    global  data
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        print('aaaaaaaaaa')
+        #text = listen()
+        #print('1')
+        text = processing(name)
+        #print('2')
+        print(text)
+        speak(text)
+        return HttpResponse(json.dumps([str(text)]), content_type='application/json')
